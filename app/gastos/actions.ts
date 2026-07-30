@@ -28,17 +28,22 @@ export async function setPhone(formData: FormData) {
   return { error: null };
 }
 
-export async function createRoom(formData: FormData) {
+type CreateRoomState = { error: string | null };
+
+export async function createRoom(
+  _prev: CreateRoomState,
+  formData: FormData,
+) {
   const name = String(formData.get("name") ?? "").trim();
   const roomType = String(formData.get("room_type") ?? "general");
   const currency = String(formData.get("currency") ?? "EUR");
-  if (!name) return;
+  if (!name) return { error: "Ponle un nombre a la sala." };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return;
+  if (!user) return { error: "No has iniciado sesión." };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -46,17 +51,23 @@ export async function createRoom(formData: FormData) {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.phone) return;
+  if (!profile?.phone) {
+    return { error: "Configura tu teléfono antes de crear una sala." };
+  }
 
-  const { data: room, error } = await supabase
+  const { data: room, error: roomError } = await supabase
     .from("rooms")
     .insert({ name, room_type: roomType, currency, created_by: user.id })
     .select("id")
     .single();
 
-  if (error || !room) return;
+  if (roomError || !room) {
+    return {
+      error: `No se pudo crear la sala: ${roomError?.message ?? "sin datos devueltos (revisa las políticas RLS de 'rooms')."}`,
+    };
+  }
 
-  await supabase.from("room_members").insert({
+  const { error: memberError } = await supabase.from("room_members").insert({
     room_id: room.id,
     user_id: user.id,
     phone: profile.phone,
@@ -65,6 +76,12 @@ export async function createRoom(formData: FormData) {
     is_ghost: false,
     claimed_at: new Date().toISOString(),
   });
+
+  if (memberError) {
+    return {
+      error: `Sala creada, pero no se pudo añadir tu membresía de admin: ${memberError.message}`,
+    };
+  }
 
   redirect(`/gastos/${room.id}`);
 }
