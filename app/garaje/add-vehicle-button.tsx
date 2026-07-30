@@ -11,7 +11,12 @@ export function AddVehicleButton({ color }: { color: string }) {
   return (
     <>
       <FabButton color={color} label="Añadir vehículo" onClick={() => setOpen(true)} />
-      <Modal open={open} onClose={() => setOpen(false)} title="Añadir vehículo">
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Añadir vehículo"
+        className="gj-modal"
+      >
         <VehicleForm onSubmit={() => setOpen(false)} />
       </Modal>
     </>

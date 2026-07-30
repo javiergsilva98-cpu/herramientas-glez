@@ -6,7 +6,7 @@ export function HuntingForm() {
   return (
     <form
       action={addHuntingDay}
-      className="flex flex-col gap-3 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
+      className="jr-card jr-sans flex flex-col gap-3 rounded-lg p-4 text-sm"
     >
       <h2 className="font-medium">Añadir jornada de caza</h2>
 
@@ -16,7 +16,7 @@ export function HuntingForm() {
           type="date"
           name="event_date"
           defaultValue={new Date().toISOString().slice(0, 10)}
-          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="jr-input mt-1 w-full rounded-md px-3 py-2"
         />
       </label>
 
@@ -25,14 +25,11 @@ export function HuntingForm() {
         <textarea
           name="notes"
           rows={2}
-          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="jr-input mt-1 w-full rounded-md px-3 py-2"
         />
       </label>
 
-      <button
-        type="submit"
-        className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
-      >
+      <button type="submit" className="jr-button rounded-md px-3 py-2">
         Añadir
       </button>
     </form>
