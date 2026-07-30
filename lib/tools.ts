@@ -60,6 +60,26 @@ export const tools: Tool[] = [
     href: "/gastos",
     ready: true,
   },
+  {
+    slug: "garaje",
+    name: "Garaje",
+    shortName: "Garaje",
+    description: "Mantenimiento y documentación de la moto y el coche.",
+    emoji: "🔧",
+    color: "#475569",
+    href: "/garaje",
+    ready: true,
+  },
+  {
+    slug: "jara",
+    name: "Jara",
+    shortName: "Jara",
+    description: "Salud y día a día de Jara.",
+    emoji: "🐾",
+    color: "#92400e",
+    href: "/jara",
+    ready: true,
+  },
 ];
 
 export function getTool(slug: string): Tool | undefined {
