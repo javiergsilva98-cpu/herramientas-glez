@@ -7,11 +7,13 @@ export function ShareButton({
   title,
   text,
   light,
+  label = "Compartir",
 }: {
   path: string;
   title: string;
   text?: string;
   light?: boolean;
+  label?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -41,7 +43,7 @@ export function ShareButton({
           : "flex items-center gap-1 text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800 dark:hover:text-neutral-200"
       }
     >
-      {copied ? "Enlace copiado" : "Compartir"}
+      {copied ? "Enlace copiado" : label}
     </button>
   );
 }

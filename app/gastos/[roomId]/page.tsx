@@ -130,12 +130,22 @@ export default async function RoomPage({
           >
             ← Salas
           </Link>
-          <ShareButton
-            light
-            path={`/gastos/${roomId}/unirse`}
-            title={`Únete a "${room.name}"`}
-            text={`Te invito a la sala de gastos "${room.name}" en Herramientas Glez.`}
-          />
+          <div className="flex items-center gap-3">
+            <ShareButton
+              light
+              label="Guardar"
+              path={`/gastos/${roomId}`}
+              title={room.name}
+              text={`Guarda "${room.name}" en tu pantalla de inicio para entrar directo.`}
+            />
+            <ShareButton
+              light
+              label="Invitar"
+              path={`/gastos/${roomId}/unirse`}
+              title={`Únete a "${room.name}"`}
+              text={`Te invito a la sala de gastos "${room.name}" en Herramientas Glez.`}
+            />
+          </div>
         </div>
 
         <h1 className="mb-6 text-2xl font-semibold">{room.name}</h1>
