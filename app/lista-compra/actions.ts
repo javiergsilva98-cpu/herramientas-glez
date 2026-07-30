@@ -55,6 +55,7 @@ export async function updateItem(formData: FormData) {
     storeType === "supermercado"
       ? String(formData.get("store_chain") ?? "") || null
       : null;
+  const category = String(formData.get("category") ?? "") || null;
   const quantity = Number(formData.get("quantity")) || 1;
   const quantityUnit = String(formData.get("quantity_unit") ?? "unidades");
   const isUrgent = formData.get("is_urgent") === "on";
@@ -66,6 +67,7 @@ export async function updateItem(formData: FormData) {
       name: name || undefined,
       store_type: storeType,
       store_chain: storeChain,
+      category,
       quantity,
       quantity_unit: quantityUnit,
       is_urgent: isUrgent,
@@ -96,6 +98,10 @@ export async function bulkUpdateItems(formData: FormData) {
 
   if (formData.get("apply_unit") === "on") {
     updates.quantity_unit = String(formData.get("quantity_unit") ?? "unidades");
+  }
+
+  if (formData.get("apply_category") === "on") {
+    updates.category = String(formData.get("category") ?? "") || null;
   }
 
   if (Object.keys(updates).length === 0) return;
