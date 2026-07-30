@@ -1,22 +1,45 @@
 import { createClient } from "@/lib/supabase/server";
 import { PhoneForm } from "../../phone-form";
-import { joinRoom } from "../actions";
+import { claimMember, joinRoom } from "../actions";
 
 export default async function JoinRoomPage({
   params,
   searchParams,
 }: {
   params: Promise<{ roomId: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; miembro?: string }>;
 }) {
   const { roomId } = await params;
-  const { error } = await searchParams;
+  const { error, miembro } = await searchParams;
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
+
+  if (miembro) {
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 p-6 text-center">
+        <h1 className="text-2xl font-semibold">
+          💶 Te han invitado a una sala de gastos
+        </h1>
+        <form action={claimMember.bind(null, roomId, miembro)}>
+          <button
+            type="submit"
+            className="w-full rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
+          >
+            Unirme
+          </button>
+        </form>
+        {error && (
+          <p className="text-sm text-red-600">
+            No se ha podido completar: {error}
+          </p>
+        )}
+      </main>
+    );
+  }
 
   const { data: profile } = await supabase
     .from("profiles")
