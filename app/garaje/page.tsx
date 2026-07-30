@@ -4,7 +4,7 @@ import { ShareButton } from "@/components/share-button";
 import { ToolHeader } from "@/components/tool-header";
 import { getTool } from "@/lib/tools";
 import type { Vehicle } from "@/lib/types/garaje";
-import { VehicleForm } from "./vehicle-form";
+import { AddVehicleButton } from "./add-vehicle-button";
 import { deleteVehicle } from "./actions";
 
 const TOOL_COLOR = getTool("garaje")!.color;
@@ -76,7 +76,7 @@ export default async function GarajePage() {
         </div>
       </ToolHeader>
 
-      <main className="mx-auto max-w-md p-6">
+      <main className="mx-auto max-w-md p-6 pb-24">
         <div className="mb-6">
           <h2 className="mb-2 font-medium">Próximos vencimientos</h2>
           {upcoming.length === 0 ? (
@@ -148,10 +148,10 @@ export default async function GarajePage() {
               Todavía no hay vehículos.
             </p>
           )}
-
-          <VehicleForm />
         </div>
       </main>
+
+      <AddVehicleButton color={TOOL_COLOR} />
     </>
   );
 }

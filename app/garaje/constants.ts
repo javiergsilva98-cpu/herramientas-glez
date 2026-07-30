@@ -7,6 +7,7 @@ export const MAINTENANCE_TYPE_SUGGESTIONS = [
   "Filtros",
   "ITV",
   "Revisión general",
+  "Avería",
 ];
 
 export const DOCUMENT_TYPES: { value: DocumentType; label: string }[] = [

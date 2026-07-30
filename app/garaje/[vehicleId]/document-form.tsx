@@ -3,14 +3,16 @@
 import { addDocument } from "./actions";
 import { DOCUMENT_TYPES } from "../constants";
 
-export function DocumentForm({ vehicleId }: { vehicleId: string }) {
+export function DocumentForm({
+  vehicleId,
+  onSubmit,
+}: {
+  vehicleId: string;
+  onSubmit?: () => void;
+}) {
   return (
-    <form
-      action={addDocument}
-      className="flex flex-col gap-3 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
-    >
+    <form action={addDocument} onSubmit={onSubmit} className="flex flex-col gap-3">
       <input type="hidden" name="vehicle_id" value={vehicleId} />
-      <h2 className="font-medium">Añadir documento</h2>
 
       <label className="text-sm">
         Tipo
@@ -42,6 +44,16 @@ export function DocumentForm({ vehicleId }: { vehicleId: string }) {
           name="notes"
           rows={2}
           className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+        />
+      </label>
+
+      <label className="text-sm">
+        Archivo (PDF o imagen)
+        <input
+          type="file"
+          name="file"
+          accept="application/pdf,image/*"
+          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </label>
 

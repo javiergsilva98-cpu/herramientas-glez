@@ -87,6 +87,61 @@ export async function addExpense(formData: FormData) {
   revalidatePath(`/gastos/${roomId}`);
 }
 
+export async function updateExpense(formData: FormData) {
+  const roomId = String(formData.get("room_id") ?? "");
+  const expenseId = String(formData.get("expense_id") ?? "");
+  const description = String(formData.get("description") ?? "").trim();
+  const amount = Number(formData.get("amount"));
+  const category = String(formData.get("category") ?? "otros");
+  const expenseDate = String(formData.get("expense_date") ?? "");
+  const paidBy = String(formData.get("paid_by") ?? "");
+  const splitType = String(formData.get("split_type") ?? "equal") as SplitType;
+  const memberIds = formData.getAll("member_ids").map(String);
+
+  if (!roomId || !expenseId || !description || !amount || amount <= 0 || !paidBy)
+    return;
+  if (memberIds.length === 0) return;
+
+  const entries: SplitInput[] = memberIds.map((memberId) => ({
+    memberId,
+    value:
+      splitType === "equal"
+        ? 0
+        : Number(formData.get(`share_${memberId}`) ?? 0),
+  }));
+
+  const splits = computeSplitAmounts(splitType, amount, entries);
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("expenses")
+    .update({
+      paid_by: paidBy,
+      amount,
+      description,
+      category,
+      expense_date: expenseDate || new Date().toISOString().slice(0, 10),
+      split_type: splitType,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", expenseId);
+
+  if (error) return;
+
+  await supabase.from("expense_splits").delete().eq("expense_id", expenseId);
+  await supabase.from("expense_splits").insert(
+    splits.map((s) => ({
+      expense_id: expenseId,
+      member_id: s.memberId,
+      amount: s.amount,
+      share_value: s.shareValue,
+    })),
+  );
+
+  revalidatePath(`/gastos/${roomId}`);
+}
+
 export async function joinRoom(roomId: string) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("join_room", { p_room_id: roomId });
@@ -141,5 +196,11 @@ export async function recordSettlement(formData: FormData) {
     created_by: user?.id ?? null,
   });
 
+  revalidatePath(`/gastos/${roomId}`);
+}
+
+export async function deleteSettlement(roomId: string, settlementId: string) {
+  const supabase = await createClient();
+  await supabase.from("settlements").delete().eq("id", settlementId);
   revalidatePath(`/gastos/${roomId}`);
 }

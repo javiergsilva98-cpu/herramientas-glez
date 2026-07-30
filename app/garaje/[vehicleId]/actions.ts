@@ -58,6 +58,7 @@ export async function addDocument(formData: FormData) {
   const documentType = String(formData.get("document_type") ?? "") as DocumentType;
   const expiryDate = String(formData.get("expiry_date") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  const file = formData.get("file");
 
   if (!vehicleId || !documentType) return;
 
@@ -66,11 +67,32 @@ export async function addDocument(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  let fileUrl: string | null = null;
+  let fileName: string | null = null;
+
+  if (file instanceof File && file.size > 0) {
+    const ext = file.name.split(".").pop();
+    const path = `${vehicleId}/${crypto.randomUUID()}${ext ? `.${ext}` : ""}`;
+    const { error: uploadError } = await supabase.storage
+      .from("vehicle-documents")
+      .upload(path, file, { contentType: file.type || undefined });
+
+    if (!uploadError) {
+      const { data: publicUrlData } = supabase.storage
+        .from("vehicle-documents")
+        .getPublicUrl(path);
+      fileUrl = publicUrlData.publicUrl;
+      fileName = file.name;
+    }
+  }
+
   await supabase.from("vehicle_documents").insert({
     vehicle_id: vehicleId,
     document_type: documentType,
     expiry_date: expiryDate || null,
     notes: notes || null,
+    file_url: fileUrl,
+    file_name: fileName,
     created_by: user?.id ?? null,
   });
 
@@ -80,7 +102,20 @@ export async function addDocument(formData: FormData) {
 
 export async function deleteDocument(vehicleId: string, documentId: string) {
   const supabase = await createClient();
+
+  const { data: doc } = await supabase
+    .from("vehicle_documents")
+    .select("file_url")
+    .eq("id", documentId)
+    .single();
+
   await supabase.from("vehicle_documents").delete().eq("id", documentId);
+
+  if (doc?.file_url) {
+    const path = doc.file_url.split("/vehicle-documents/")[1];
+    if (path) await supabase.storage.from("vehicle-documents").remove([path]);
+  }
+
   revalidatePath(`/garaje/${vehicleId}`);
   revalidatePath("/garaje");
 }

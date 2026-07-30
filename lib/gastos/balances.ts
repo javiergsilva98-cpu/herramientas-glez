@@ -34,13 +34,15 @@ export function computeBalances(
   }
 
   for (const settlement of settlements) {
-    balances.set(
-      settlement.to_member_id,
-      (balances.get(settlement.to_member_id) ?? 0) + Number(settlement.amount),
-    );
+    // from_member_id es quien debía y paga: su deuda se reduce (balance sube).
+    // to_member_id es quien recibía el dinero: ya no se le debe (balance baja).
     balances.set(
       settlement.from_member_id,
-      (balances.get(settlement.from_member_id) ?? 0) - Number(settlement.amount),
+      (balances.get(settlement.from_member_id) ?? 0) + Number(settlement.amount),
+    );
+    balances.set(
+      settlement.to_member_id,
+      (balances.get(settlement.to_member_id) ?? 0) - Number(settlement.amount),
     );
   }
 

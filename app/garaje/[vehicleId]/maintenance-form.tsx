@@ -5,16 +5,18 @@ import { addMaintenance } from "./actions";
 import { MAINTENANCE_TYPE_SUGGESTIONS } from "../constants";
 import type { PerformedBy } from "@/lib/types/garaje";
 
-export function MaintenanceForm({ vehicleId }: { vehicleId: string }) {
+export function MaintenanceForm({
+  vehicleId,
+  onSubmit,
+}: {
+  vehicleId: string;
+  onSubmit?: () => void;
+}) {
   const [performedBy, setPerformedBy] = useState<PerformedBy>("taller");
 
   return (
-    <form
-      action={addMaintenance}
-      className="flex flex-col gap-3 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
-    >
+    <form action={addMaintenance} onSubmit={onSubmit} className="flex flex-col gap-3">
       <input type="hidden" name="vehicle_id" value={vehicleId} />
-      <h2 className="font-medium">Añadir mantenimiento</h2>
 
       <div className="flex gap-2">
         <label className="flex-1 text-sm">

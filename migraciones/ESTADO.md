@@ -17,3 +17,4 @@ pregúntame y te digo cuál es el último marcado como ejecutado.
 | 008 | [`008_gastos_invitar_miembro.sql`](./008_gastos_invitar_miembro.sql) | Función `claim_member` para vincular un enlace de invitación a un miembro fantasma concreto | ✅ Ejecutado |
 | 009 | [`009_garaje.sql`](./009_garaje.sql) | Garaje: tablas `vehicles`, `maintenance_records`, `vehicle_documents` + RLS + alta de moto y coche | ✅ Ejecutado |
 | 010 | [`010_jara.sql`](./010_jara.sql) | Jara: tablas `jara_health_events`, `hunting_days`, `grooming_reminders` + RLS | ✅ Ejecutado |
+| 011 | [`011_garaje_documentos_archivo.sql`](./011_garaje_documentos_archivo.sql) | Garaje: columnas `file_url`/`file_name` en `vehicle_documents` + bucket de Storage `vehicle-documents` + políticas | ⏳ Pendiente |

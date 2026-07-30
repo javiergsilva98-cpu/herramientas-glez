@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { addExpense } from "./actions";
-import type { RoomMember, SplitType } from "@/lib/types/gastos";
+import type { Expense, ExpenseSplit, RoomMember, SplitType } from "@/lib/types/gastos";
 
 const SPLIT_TYPES: { value: SplitType; label: string }[] = [
   { value: "equal", label: "Igual" },
@@ -11,31 +10,48 @@ const SPLIT_TYPES: { value: SplitType; label: string }[] = [
   { value: "shares", label: "Partes" },
 ];
 
-export function AddExpenseForm({
+export function ExpenseForm({
   roomId,
   members,
+  action,
+  expense,
+  splits,
+  submitLabel = "Añadir gasto",
+  onSubmit,
 }: {
   roomId: string;
   members: RoomMember[];
+  action: (formData: FormData) => void | Promise<void>;
+  expense?: Expense;
+  splits?: ExpenseSplit[];
+  submitLabel?: string;
+  onSubmit?: () => void;
 }) {
-  const [splitType, setSplitType] = useState<SplitType>("equal");
+  const splitByMember = new Map((splits ?? []).map((s) => [s.member_id, s]));
+  const [splitType, setSplitType] = useState<SplitType>(
+    expense?.split_type ?? "equal",
+  );
   const [selected, setSelected] = useState<Record<string, boolean>>(
-    Object.fromEntries(members.map((m) => [m.id, true])),
+    Object.fromEntries(
+      members.map((m) => [m.id, expense ? splitByMember.has(m.id) : true]),
+    ),
   );
 
   return (
     <form
-      action={addExpense}
-      className="flex flex-col gap-3 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
+      action={action}
+      onSubmit={onSubmit}
+      className="flex flex-col gap-3"
     >
       <input type="hidden" name="room_id" value={roomId} />
-      <h2 className="font-medium">Añadir gasto</h2>
+      {expense && <input type="hidden" name="expense_id" value={expense.id} />}
 
       <label className="text-sm">
         Descripción
         <input
           name="description"
           required
+          defaultValue={expense?.description}
           className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
         />
       </label>
@@ -49,6 +65,7 @@ export function AddExpenseForm({
             min="0.01"
             name="amount"
             required
+            defaultValue={expense?.amount}
             className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
           />
         </label>
@@ -57,7 +74,9 @@ export function AddExpenseForm({
           <input
             type="date"
             name="expense_date"
-            defaultValue={new Date().toISOString().slice(0, 10)}
+            defaultValue={
+              expense?.expense_date ?? new Date().toISOString().slice(0, 10)
+            }
             className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
           />
         </label>
@@ -67,7 +86,7 @@ export function AddExpenseForm({
         Categoría
         <input
           name="category"
-          defaultValue="otros"
+          defaultValue={expense?.category ?? "otros"}
           className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
         />
       </label>
@@ -77,6 +96,7 @@ export function AddExpenseForm({
         <select
           name="paid_by"
           required
+          defaultValue={expense?.paid_by}
           className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
         >
           {members.map((m) => (
@@ -123,6 +143,11 @@ export function AddExpenseForm({
                 type="number"
                 step="any"
                 name={`share_${m.id}`}
+                defaultValue={
+                  splitType === "exact"
+                    ? (splitByMember.get(m.id)?.amount ?? undefined)
+                    : (splitByMember.get(m.id)?.share_value ?? undefined)
+                }
                 placeholder={
                   splitType === "exact"
                     ? "€"
@@ -141,7 +166,7 @@ export function AddExpenseForm({
         type="submit"
         className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
       >
-        Añadir gasto
+        {submitLabel}
       </button>
     </form>
   );
