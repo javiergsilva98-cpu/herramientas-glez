@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export function SignOutButton() {
+export function SignOutButton({ light }: { light?: boolean } = {}) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -16,7 +16,11 @@ export function SignOutButton() {
   return (
     <button
       onClick={handleSignOut}
-      className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800 dark:hover:text-neutral-200"
+      className={
+        light
+          ? "text-sm text-white/90 underline underline-offset-2 hover:text-white"
+          : "text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800 dark:hover:text-neutral-200"
+      }
     >
       Cerrar sesión
     </button>

@@ -4,6 +4,10 @@ import { ShareButton } from "@/components/share-button";
 import { PhoneForm } from "./phone-form";
 import { RoomForm } from "./room-form";
 import { deleteRoom } from "./actions";
+import { ToolHeader } from "@/components/tool-header";
+import { getTool } from "@/lib/tools";
+
+const TOOL_COLOR = getTool("gastos")!.color;
 
 export default async function GastosPage() {
   const supabase = await createClient();
@@ -43,13 +47,15 @@ export default async function GastosPage() {
   const rooms = roomsData ?? [];
 
   return (
-    <main className="mx-auto max-w-md p-6">
-      <div className="mb-6 flex items-center justify-end">
-        <ShareButton path="/gastos" title="Divisor de gastos" />
-      </div>
+    <>
+      <ToolHeader color={TOOL_COLOR}>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">💶 Divisor de gastos</h1>
+          <ShareButton light path="/gastos" title="Divisor de gastos" />
+        </div>
+      </ToolHeader>
 
-      <h1 className="mb-6 text-2xl font-semibold">💶 Divisor de gastos</h1>
-
+      <main className="mx-auto max-w-md p-6">
       {!profile?.phone ? (
         <PhoneForm />
       ) : (
@@ -100,6 +106,7 @@ export default async function GastosPage() {
           )}
         </div>
       )}
-    </main>
+      </main>
+    </>
   );
 }

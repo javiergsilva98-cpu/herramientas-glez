@@ -65,3 +65,6 @@ export const tools: Tool[] = [
 export function getTool(slug: string): Tool | undefined {
   return tools.find((tool) => tool.slug === slug);
 }
+
+// Color de fondo del icono de la home/hub (llave inglesa + destornillador).
+export const HOME_COLOR = "#ce4800";
