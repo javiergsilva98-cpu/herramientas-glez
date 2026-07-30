@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PhoneForm } from "../../phone-form";
 import { claimMember, joinRoom } from "../actions";
@@ -17,6 +18,17 @@ export default async function JoinRoomPage({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
+
+  const { data: existingMembership } = await supabase
+    .from("room_members")
+    .select("id")
+    .eq("room_id", roomId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (existingMembership) {
+    redirect(`/gastos/${roomId}`);
+  }
 
   if (miembro) {
     return (
