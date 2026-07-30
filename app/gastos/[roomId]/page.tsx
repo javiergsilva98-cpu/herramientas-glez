@@ -2,17 +2,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { ShareButton } from "@/components/share-button";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { ToolHeader } from "@/components/tool-header";
 import { getTool } from "@/lib/tools";
 import type { Expense, ExpenseSplit, RoomMember, Settlement } from "@/lib/types/gastos";
 import { computeBalances, detailedDebts, simplifyDebts } from "@/lib/gastos/balances";
 import { AddMemberForm } from "./add-member-form";
-import { AddExpenseForm } from "./add-expense-form";
-import { deleteExpense, recordSettlement } from "./actions";
+import { AddExpenseButton } from "./add-expense-button";
+import { EditExpenseButton } from "./edit-expense-button";
+import { deleteExpense, deleteSettlement, recordSettlement } from "./actions";
 
 type Tab = "resumen" | "gastos" | "miembros";
+
+type FeedEntry =
+  | { kind: "expense"; sortKey: string; expense: Expense }
+  | { kind: "settlement"; sortKey: string; settlement: Settlement };
 
 const GASTOS_COLOR = getTool("gastos")!.color;
 
@@ -99,10 +103,18 @@ export default async function RoomPage({
       : { data: [] };
   const splits = (splitsData ?? []) as ExpenseSplit[];
 
+  const splitsByExpense = new Map<string, ExpenseSplit[]>();
+  for (const split of splits) {
+    const list = splitsByExpense.get(split.expense_id) ?? [];
+    list.push(split);
+    splitsByExpense.set(split.expense_id, list);
+  }
+
   const { data: settlementsData } = await supabase
     .from("settlements")
     .select("*")
-    .eq("room_id", roomId);
+    .eq("room_id", roomId)
+    .order("settled_at", { ascending: false });
   const settlements = (settlementsData ?? []) as Settlement[];
 
   const balances = computeBalances(
@@ -114,6 +126,19 @@ export default async function RoomPage({
   const simplified = simplifyDebts(balances);
   const detailed = detailedDebts(expenses, splits);
 
+  const feed: FeedEntry[] = [
+    ...expenses.map((e) => ({
+      kind: "expense" as const,
+      sortKey: e.created_at,
+      expense: e,
+    })),
+    ...settlements.map((s) => ({
+      kind: "settlement" as const,
+      sortKey: s.settled_at,
+      settlement: s,
+    })),
+  ].sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+
   const myMember = members.find((m) => m.user_id === user?.id);
   const myBalance = myMember
     ? (balances.find((b) => b.memberId === myMember.id)?.amount ?? 0)
@@ -123,16 +148,6 @@ export default async function RoomPage({
   return (
     <>
       <ToolHeader color={GASTOS_COLOR}>
-        <div className="mb-4 flex items-center justify-end">
-          <ShareButton
-            light
-            label="Invitar"
-            path={`/gastos/${roomId}/unirse`}
-            title={`Únete a "${room.name}"`}
-            text={`Te invito a la sala de gastos "${room.name}" en Herramientas Glez.`}
-          />
-        </div>
-
         <h1 className="mb-6 text-2xl font-semibold">{room.name}</h1>
 
         <div className="mx-auto flex h-44 w-44 flex-col items-center justify-center rounded-full bg-black/25 text-center">
@@ -155,7 +170,7 @@ export default async function RoomPage({
         </div>
       </ToolHeader>
 
-      <main className="mx-auto max-w-md p-6">
+      <main className="mx-auto max-w-md p-6 pb-24">
         <div className="mb-6 flex gap-2 text-sm">
           <TabLink roomId={roomId} tab="resumen" active={tab === "resumen"}>
             Resumen
@@ -192,8 +207,8 @@ export default async function RoomPage({
 
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <h2 className="font-medium">Últimos gastos</h2>
-                {expenses.length > 5 && (
+                <h2 className="font-medium">Últimos movimientos</h2>
+                {feed.length > 5 && (
                   <Link
                     href={`/gastos/${roomId}?tab=gastos`}
                     className="text-sm text-neutral-500 underline underline-offset-2"
@@ -203,16 +218,23 @@ export default async function RoomPage({
                 )}
               </div>
               <ul className="flex flex-col gap-2">
-                {expenses.slice(0, 5).map((expense) => (
-                  <ExpenseRow
-                    key={expense.id}
-                    expense={expense}
-                    paidByName={memberName(expense.paid_by)}
+                {feed.slice(0, 5).map((entry) => (
+                  <FeedItemRow
+                    key={
+                      entry.kind === "expense"
+                        ? entry.expense.id
+                        : entry.settlement.id
+                    }
+                    entry={entry}
+                    roomId={roomId}
+                    members={members}
+                    memberName={memberName}
+                    splitsByExpense={splitsByExpense}
                   />
                 ))}
               </ul>
-              {expenses.length === 0 && (
-                <p className="text-sm text-neutral-500">Aún no hay gastos.</p>
+              {feed.length === 0 && (
+                <p className="text-sm text-neutral-500">Aún no hay movimientos.</p>
               )}
             </div>
 
@@ -264,19 +286,24 @@ export default async function RoomPage({
 
         {tab === "gastos" && (
           <div className="flex flex-col gap-4">
-            <AddExpenseForm roomId={roomId} members={members} />
             <ul className="flex flex-col gap-2">
-              {expenses.map((expense) => (
-                <ExpenseRow
-                  key={expense.id}
-                  expense={expense}
-                  paidByName={memberName(expense.paid_by)}
-                  onDelete={deleteExpense.bind(null, roomId, expense.id)}
+              {feed.map((entry) => (
+                <FeedItemRow
+                  key={
+                    entry.kind === "expense"
+                      ? entry.expense.id
+                      : entry.settlement.id
+                  }
+                  entry={entry}
+                  roomId={roomId}
+                  members={members}
+                  memberName={memberName}
+                  splitsByExpense={splitsByExpense}
                 />
               ))}
             </ul>
-            {expenses.length === 0 && (
-              <p className="text-sm text-neutral-500">Aún no hay gastos.</p>
+            {feed.length === 0 && (
+              <p className="text-sm text-neutral-500">Aún no hay movimientos.</p>
             )}
           </div>
         )}
@@ -310,6 +337,10 @@ export default async function RoomPage({
           </div>
         )}
       </main>
+
+      {(tab === "resumen" || tab === "gastos") && (
+        <AddExpenseButton roomId={roomId} members={members} color={GASTOS_COLOR} />
+      )}
     </>
   );
 }
@@ -339,32 +370,67 @@ function TabLink({
   );
 }
 
-function ExpenseRow({
-  expense,
-  paidByName,
-  onDelete,
+function FeedItemRow({
+  entry,
+  roomId,
+  members,
+  memberName,
+  splitsByExpense,
 }: {
-  expense: Expense;
-  paidByName: string;
-  onDelete?: (formData: FormData) => void | Promise<void>;
+  entry: FeedEntry;
+  roomId: string;
+  members: RoomMember[];
+  memberName: (id: string) => string;
+  splitsByExpense: Map<string, ExpenseSplit[]>;
 }) {
+  if (entry.kind === "expense") {
+    const { expense } = entry;
+    return (
+      <li className="rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+        <div className="flex items-center justify-between">
+          <span className="font-medium">{expense.description}</span>
+          <span>{expense.amount.toFixed(2)} €</span>
+        </div>
+        <div className="flex items-center justify-between text-xs text-neutral-500">
+          <span>
+            {memberName(expense.paid_by)} · {expense.expense_date} ·{" "}
+            {expense.category}
+          </span>
+          <div className="flex items-center gap-2">
+            <EditExpenseButton
+              roomId={roomId}
+              members={members}
+              expense={expense}
+              splits={splitsByExpense.get(expense.id) ?? []}
+            />
+            <form action={deleteExpense.bind(null, roomId, expense.id)}>
+              <button type="submit" className="hover:text-red-600">
+                ✕
+              </button>
+            </form>
+          </div>
+        </div>
+      </li>
+    );
+  }
+
+  const { settlement } = entry;
   return (
-    <li className="rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+    <li className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-900 dark:bg-emerald-950/30">
       <div className="flex items-center justify-between">
-        <span className="font-medium">{expense.description}</span>
-        <span>{expense.amount.toFixed(2)} €</span>
+        <span className="font-medium">
+          💸 {memberName(settlement.from_member_id)} →{" "}
+          {memberName(settlement.to_member_id)}
+        </span>
+        <span>{settlement.amount.toFixed(2)} €</span>
       </div>
       <div className="flex items-center justify-between text-xs text-neutral-500">
-        <span>
-          {paidByName} · {expense.expense_date} · {expense.category}
-        </span>
-        {onDelete && (
-          <form action={onDelete}>
-            <button type="submit" className="hover:text-red-600">
-              ✕
-            </button>
-          </form>
-        )}
+        <span>Pago saldado · {settlement.settled_at.slice(0, 10)}</span>
+        <form action={deleteSettlement.bind(null, roomId, settlement.id)}>
+          <button type="submit" className="hover:text-red-600">
+            ✕
+          </button>
+        </form>
       </div>
     </li>
   );

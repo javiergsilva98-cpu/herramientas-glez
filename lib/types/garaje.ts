@@ -38,6 +38,8 @@ export type VehicleDocument = {
   document_type: DocumentType;
   expiry_date: string | null;
   notes: string | null;
+  file_url: string | null;
+  file_name: string | null;
   created_by: string | null;
   created_at: string;
 };

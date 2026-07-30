@@ -2,14 +2,9 @@
 
 import { addVehicle } from "./actions";
 
-export function VehicleForm() {
+export function VehicleForm({ onSubmit }: { onSubmit?: () => void }) {
   return (
-    <form
-      action={addVehicle}
-      className="flex flex-col gap-3 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
-    >
-      <h2 className="font-medium">Añadir vehículo</h2>
-
+    <form action={addVehicle} onSubmit={onSubmit} className="flex flex-col gap-3">
       <label className="text-sm">
         Nombre
         <input
