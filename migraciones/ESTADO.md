@@ -11,5 +11,5 @@ pregúntame y te digo cuál es el último marcado como ejecutado.
 | 002 | [`002_lista_compra_detalles.sql`](./002_lista_compra_detalles.sql) | Añade tienda, cantidad con unidad y urgencia a `shopping_items` | ✅ Ejecutado |
 | 003 | [`003_gastos_esquema.sql`](./003_gastos_esquema.sql) | Divisor de gastos: perfiles, salas, miembros fantasma, gastos, reparto, liquidaciones, comentarios, plantillas recurrentes + RLS | ✅ Ejecutado |
 | 004 | [`004_lista_compra_categoria.sql`](./004_lista_compra_categoria.sql) | Añade categoría de pasillo/sección (frutería, droguería...) a `shopping_items` | ✅ Ejecutado |
-| 005 | [`005_gastos_unirse.sql`](./005_gastos_unirse.sql) | Función `join_room` para unirte a una sala de gastos por enlace | ⏳ Pendiente |
-| 006 | [`006_gastos_admin_y_arreglo.sql`](./006_gastos_admin_y_arreglo.sql) | Arregla el bug de RLS que dejaba salas sin miembros, repara las huérfanas, y restringe crear salas a administradores de la app | ⏳ Pendiente |
+| 005 | [`005_gastos_unirse.sql`](./005_gastos_unirse.sql) | Función `join_room` para unirte a una sala de gastos por enlace | ✅ Ejecutado |
+| 006 | [`006_gastos_admin_y_arreglo.sql`](./006_gastos_admin_y_arreglo.sql) | Arregla el bug de RLS que dejaba salas sin miembros, repara las huérfanas, y restringe crear salas a administradores de la app | ✅ Ejecutado |
