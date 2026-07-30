@@ -15,5 +15,5 @@ pregúntame y te digo cuál es el último marcado como ejecutado.
 | 006 | [`006_gastos_admin_y_arreglo.sql`](./006_gastos_admin_y_arreglo.sql) | Arregla el bug de RLS que dejaba salas sin miembros, repara las huérfanas, y restringe crear salas a administradores de la app | ✅ Ejecutado |
 | 007 | [`007_gastos_fix_recursion.sql`](./007_gastos_fix_recursion.sql) | Arregla "infinite recursion detected in policy for relation room_members" reescribiendo las políticas con funciones security definer | ✅ Ejecutado |
 | 008 | [`008_gastos_invitar_miembro.sql`](./008_gastos_invitar_miembro.sql) | Función `claim_member` para vincular un enlace de invitación a un miembro fantasma concreto | ✅ Ejecutado |
-| 009 | [`009_garaje.sql`](./009_garaje.sql) | Garaje: tablas `vehicles`, `maintenance_records`, `vehicle_documents` + RLS + alta de moto y coche | ⏳ Pendiente |
-| 010 | [`010_jara.sql`](./010_jara.sql) | Jara: tablas `jara_health_events`, `hunting_days`, `grooming_reminders` + RLS | ⏳ Pendiente |
+| 009 | [`009_garaje.sql`](./009_garaje.sql) | Garaje: tablas `vehicles`, `maintenance_records`, `vehicle_documents` + RLS + alta de moto y coche | ✅ Ejecutado |
+| 010 | [`010_jara.sql`](./010_jara.sql) | Jara: tablas `jara_health_events`, `hunting_days`, `grooming_reminders` + RLS | ✅ Ejecutado |
