@@ -5,6 +5,10 @@ import { STORE_CHAINS, STORE_TYPES } from "./constants";
 import { addItem } from "./actions";
 import { ShoppingList } from "./shopping-list";
 import { ShareButton } from "@/components/share-button";
+import { ToolHeader } from "@/components/tool-header";
+import { getTool } from "@/lib/tools";
+
+const TOOL_COLOR = getTool("lista-compra")!.color;
 
 const VALID_STORE_TYPES = STORE_TYPES.map((t) => t.value);
 const VALID_STORE_CHAINS = STORE_CHAINS.map((c) => c.value);
@@ -43,13 +47,15 @@ export default async function ListaCompraPage({
   const items = (data ?? []) as ShoppingItem[];
 
   return (
-    <main className="mx-auto max-w-md p-6">
-      <div className="mb-6 flex items-center justify-end">
-        <ShareButton path="/lista-compra" title="Lista de la compra" />
-      </div>
+    <>
+      <ToolHeader color={TOOL_COLOR}>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">🛒 Lista de la compra</h1>
+          <ShareButton light path="/lista-compra" title="Lista de la compra" />
+        </div>
+      </ToolHeader>
 
-      <h1 className="mb-4 text-2xl font-semibold">🛒 Lista de la compra</h1>
-
+      <main className="mx-auto max-w-md p-6">
       <div className="mb-2 flex flex-wrap gap-2 text-sm">
         <FilterTab label="Todos" active={!storeFilter} href="/lista-compra" />
         {STORE_TYPES.map((t) => (
@@ -103,7 +109,8 @@ export default async function ListaCompraPage({
       </form>
 
       <ShoppingList items={items} />
-    </main>
+      </main>
+    </>
   );
 }
 

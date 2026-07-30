@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { ShareButton } from "@/components/share-button";
 import { CopyLinkButton } from "@/components/copy-link-button";
+import { ToolHeader } from "@/components/tool-header";
+import { getTool } from "@/lib/tools";
 import type { Expense, ExpenseSplit, RoomMember, Settlement } from "@/lib/types/gastos";
 import { computeBalances, detailedDebts, simplifyDebts } from "@/lib/gastos/balances";
 import { AddMemberForm } from "./add-member-form";
@@ -12,7 +14,7 @@ import { deleteExpense, recordSettlement } from "./actions";
 
 type Tab = "resumen" | "gastos" | "miembros";
 
-const GASTOS_COLOR = "#0b8f91";
+const GASTOS_COLOR = getTool("gastos")!.color;
 
 export async function generateMetadata({
   params,
@@ -120,45 +122,43 @@ export default async function RoomPage({
 
   return (
     <>
-      <div style={{ backgroundColor: GASTOS_COLOR }} className="px-6 pb-8 pt-6 text-white">
-        <div className="mx-auto max-w-md">
-          <div className="mb-4 flex items-center justify-between">
-            <Link
-              href="/gastos"
-              className="text-sm text-white/90 underline underline-offset-2 hover:text-white"
-            >
-              ← Salas
-            </Link>
-            <ShareButton
-              light
-              path={`/gastos/${roomId}/unirse`}
-              title={`Únete a "${room.name}"`}
-              text={`Te invito a la sala de gastos "${room.name}" en Herramientas Glez.`}
-            />
-          </div>
-
-          <h1 className="mb-6 text-2xl font-semibold">{room.name}</h1>
-
-          <div className="mx-auto flex h-44 w-44 flex-col items-center justify-center rounded-full bg-black/25 text-center">
-            {isSettled ? (
-              <>
-                <span className="text-4xl">✓</span>
-                <span className="mt-1 text-sm text-white/80">Sin deudas</span>
-              </>
-            ) : (
-              <>
-                <span className="text-3xl font-semibold">
-                  {myBalance > 0 ? "+" : ""}
-                  {myBalance.toFixed(2)} €
-                </span>
-                <span className="mt-1 text-sm text-white/80">
-                  {myBalance > 0 ? "te deben" : "debes"}
-                </span>
-              </>
-            )}
-          </div>
+      <ToolHeader color={GASTOS_COLOR}>
+        <div className="mb-4 flex items-center justify-between">
+          <Link
+            href="/gastos"
+            className="text-sm text-white/90 underline underline-offset-2 hover:text-white"
+          >
+            ← Salas
+          </Link>
+          <ShareButton
+            light
+            path={`/gastos/${roomId}/unirse`}
+            title={`Únete a "${room.name}"`}
+            text={`Te invito a la sala de gastos "${room.name}" en Herramientas Glez.`}
+          />
         </div>
-      </div>
+
+        <h1 className="mb-6 text-2xl font-semibold">{room.name}</h1>
+
+        <div className="mx-auto flex h-44 w-44 flex-col items-center justify-center rounded-full bg-black/25 text-center">
+          {isSettled ? (
+            <>
+              <span className="text-4xl">✓</span>
+              <span className="mt-1 text-sm text-white/80">Sin deudas</span>
+            </>
+          ) : (
+            <>
+              <span className="text-3xl font-semibold">
+                {myBalance > 0 ? "+" : ""}
+                {myBalance.toFixed(2)} €
+              </span>
+              <span className="mt-1 text-sm text-white/80">
+                {myBalance > 0 ? "te deben" : "debes"}
+              </span>
+            </>
+          )}
+        </div>
+      </ToolHeader>
 
       <main className="mx-auto max-w-md p-6">
         <div className="mb-6 flex gap-2 text-sm">
