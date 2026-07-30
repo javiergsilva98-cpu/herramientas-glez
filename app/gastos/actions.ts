@@ -68,3 +68,9 @@ export async function createRoom(formData: FormData) {
 
   redirect(`/gastos/${room.id}`);
 }
+
+export async function deleteRoom(roomId: string) {
+  const supabase = await createClient();
+  await supabase.from("rooms").delete().eq("id", roomId);
+  revalidatePath("/gastos");
+}
