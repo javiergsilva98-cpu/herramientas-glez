@@ -11,6 +11,7 @@ export function LoginForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,7 +23,12 @@ export function LoginForm() {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
-    setStatus(error ? "error" : "sent");
+    if (error) {
+      setErrorMessage(error.message);
+      setStatus("error");
+    } else {
+      setStatus("sent");
+    }
   }
 
   if (status === "sent") {
@@ -56,7 +62,7 @@ export function LoginForm() {
         {status === "sending" ? "Enviando..." : "Enviar enlace de acceso"}
       </button>
       {status === "error" && (
-        <p className="text-sm text-red-600">Algo ha fallado. Prueba de nuevo.</p>
+        <p className="text-sm text-red-600">{errorMessage}</p>
       )}
     </form>
   );
