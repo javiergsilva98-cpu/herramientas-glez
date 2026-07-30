@@ -7,4 +7,4 @@ pregúntame y te digo cuál es el último marcado como ejecutado.
 
 | # | Archivo | Descripción | Estado |
 |---|---|---|---|
-| 001 | [`001_lista_compra.sql`](./001_lista_compra.sql) | Tabla `shopping_items` (Lista de la compra) + políticas RLS | ⏳ Pendiente |
+| 001 | [`001_lista_compra.sql`](./001_lista_compra.sql) | Tabla `shopping_items` (Lista de la compra) + políticas RLS | ✅ Ejecutado |
