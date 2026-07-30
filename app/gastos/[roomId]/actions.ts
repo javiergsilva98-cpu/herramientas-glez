@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isValidSpanishPhone, normalizePhone } from "@/lib/phone";
 import { computeSplitAmounts, type SplitInput } from "@/lib/gastos/split";
@@ -84,6 +85,17 @@ export async function addExpense(formData: FormData) {
   );
 
   revalidatePath(`/gastos/${roomId}`);
+}
+
+export async function joinRoom(roomId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("join_room", { p_room_id: roomId });
+
+  if (error) {
+    redirect(`/gastos/${roomId}/unirse?error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect(`/gastos/${roomId}`);
 }
 
 export async function deleteExpense(roomId: string, expenseId: string) {

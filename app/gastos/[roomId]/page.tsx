@@ -80,7 +80,11 @@ export default async function RoomPage({
         <Link href="/gastos" className="text-sm text-neutral-500 hover:underline">
           ← Salas
         </Link>
-        <ShareButton path={`/gastos/${roomId}`} title={room.name} />
+        <ShareButton
+          path={`/gastos/${roomId}/unirse`}
+          title={`Únete a "${room.name}"`}
+          text={`Te invito a la sala de gastos "${room.name}" en Herramientas Glez.`}
+        />
       </div>
 
       <h1 className="mb-4 text-2xl font-semibold">{room.name}</h1>
