@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ShareButton } from "./share-button";
 
 export function ComingSoon({
@@ -15,12 +14,7 @@ export function ComingSoon({
       <span className="text-5xl">{emoji}</span>
       <h1 className="text-2xl font-semibold">{name}</h1>
       <p className="text-neutral-500">Todavía no está lista. Próximamente.</p>
-      <div className="flex gap-4">
-        <Link href="/" className="text-sm underline underline-offset-2">
-          ← Volver al inicio
-        </Link>
-        <ShareButton path={path} title={name} />
-      </div>
+      <ShareButton path={path} title={name} />
     </main>
   );
 }
