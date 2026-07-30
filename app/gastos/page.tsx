@@ -40,10 +40,7 @@ export default async function GastosPage() {
 
   return (
     <main className="mx-auto max-w-md p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <Link href="/" className="text-sm text-neutral-500 hover:underline">
-          ← Inicio
-        </Link>
+      <div className="mb-6 flex items-center justify-end">
         <ShareButton path="/gastos" title="Divisor de gastos" />
       </div>
 
