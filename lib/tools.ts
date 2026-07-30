@@ -76,7 +76,7 @@ export const tools: Tool[] = [
     shortName: "Jara",
     description: "Salud y día a día de Jara.",
     emoji: "🐾",
-    color: "#92400e",
+    color: "#7534e8",
     href: "/jara",
     ready: true,
   },
