@@ -14,4 +14,4 @@ pregúntame y te digo cuál es el último marcado como ejecutado.
 | 005 | [`005_gastos_unirse.sql`](./005_gastos_unirse.sql) | Función `join_room` para unirte a una sala de gastos por enlace | ✅ Ejecutado |
 | 006 | [`006_gastos_admin_y_arreglo.sql`](./006_gastos_admin_y_arreglo.sql) | Arregla el bug de RLS que dejaba salas sin miembros, repara las huérfanas, y restringe crear salas a administradores de la app | ✅ Ejecutado |
 | 007 | [`007_gastos_fix_recursion.sql`](./007_gastos_fix_recursion.sql) | Arregla "infinite recursion detected in policy for relation room_members" reescribiendo las políticas con funciones security definer | ✅ Ejecutado |
-| 008 | [`008_gastos_invitar_miembro.sql`](./008_gastos_invitar_miembro.sql) | Función `claim_member` para vincular un enlace de invitación a un miembro fantasma concreto | ⏳ Pendiente |
+| 008 | [`008_gastos_invitar_miembro.sql`](./008_gastos_invitar_miembro.sql) | Función `claim_member` para vincular un enlace de invitación a un miembro fantasma concreto | ✅ Ejecutado |
