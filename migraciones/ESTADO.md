@@ -8,4 +8,4 @@ pregúntame y te digo cuál es el último marcado como ejecutado.
 | # | Archivo | Descripción | Estado |
 |---|---|---|---|
 | 001 | [`001_lista_compra.sql`](./001_lista_compra.sql) | Tabla `shopping_items` (Lista de la compra) + políticas RLS | ✅ Ejecutado |
-| 002 | [`002_lista_compra_detalles.sql`](./002_lista_compra_detalles.sql) | Añade tienda, cantidad con unidad y urgencia a `shopping_items` | ⏳ Pendiente |
+| 002 | [`002_lista_compra_detalles.sql`](./002_lista_compra_detalles.sql) | Añade tienda, cantidad con unidad y urgencia a `shopping_items` | ✅ Ejecutado |
