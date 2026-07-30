@@ -10,7 +10,9 @@ import { AddMemberForm } from "./add-member-form";
 import { AddExpenseForm } from "./add-expense-form";
 import { deleteExpense, recordSettlement } from "./actions";
 
-type Tab = "gastos" | "miembros" | "balances";
+type Tab = "resumen" | "gastos" | "miembros";
+
+const GASTOS_COLOR = "#0b8f91";
 
 export async function generateMetadata({
   params,
@@ -52,9 +54,13 @@ export default async function RoomPage({
   const { roomId } = await params;
   const { tab: tabParam } = await searchParams;
   const tab: Tab =
-    tabParam === "miembros" || tabParam === "balances" ? tabParam : "gastos";
+    tabParam === "gastos" || tabParam === "miembros" ? tabParam : "resumen";
 
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data: room } = await supabase
     .from("rooms")
@@ -106,161 +112,210 @@ export default async function RoomPage({
   const simplified = simplifyDebts(balances);
   const detailed = detailedDebts(expenses, splits);
 
+  const myMember = members.find((m) => m.user_id === user?.id);
+  const myBalance = myMember
+    ? (balances.find((b) => b.memberId === myMember.id)?.amount ?? 0)
+    : 0;
+  const isSettled = Math.abs(myBalance) < 0.01;
+
   return (
-    <main className="mx-auto max-w-md p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <Link href="/gastos" className="text-sm text-neutral-500 hover:underline">
-          ← Salas
-        </Link>
-        <ShareButton
-          path={`/gastos/${roomId}/unirse`}
-          title={`Únete a "${room.name}"`}
-          text={`Te invito a la sala de gastos "${room.name}" en Herramientas Glez.`}
-        />
-      </div>
-
-      <h1 className="mb-4 text-2xl font-semibold">{room.name}</h1>
-
-      <div className="mb-6 flex gap-2 text-sm">
-        <TabLink roomId={roomId} tab="gastos" active={tab === "gastos"}>
-          Gastos
-        </TabLink>
-        <TabLink roomId={roomId} tab="miembros" active={tab === "miembros"}>
-          Miembros
-        </TabLink>
-        <TabLink roomId={roomId} tab="balances" active={tab === "balances"}>
-          Balances
-        </TabLink>
-      </div>
-
-      {tab === "gastos" && (
-        <div className="flex flex-col gap-4">
-          <AddExpenseForm roomId={roomId} members={members} />
-          <ul className="flex flex-col gap-2">
-            {expenses.map((expense) => (
-              <li
-                key={expense.id}
-                className="rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{expense.description}</span>
-                  <span>{expense.amount.toFixed(2)} €</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-neutral-500">
-                  <span>
-                    {memberName(expense.paid_by)} · {expense.expense_date} ·{" "}
-                    {expense.category}
-                  </span>
-                  <form action={deleteExpense.bind(null, roomId, expense.id)}>
-                    <button type="submit" className="hover:text-red-600">
-                      ✕
-                    </button>
-                  </form>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {expenses.length === 0 && (
-            <p className="text-sm text-neutral-500">Aún no hay gastos.</p>
-          )}
-        </div>
-      )}
-
-      {tab === "miembros" && (
-        <div className="flex flex-col gap-4">
-          <ul className="flex flex-col gap-2">
-            {members.map((m) => (
-              <li
-                key={m.id}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800"
-              >
-                <div>
-                  <div>{m.display_name}</div>
-                  <div className="text-xs text-neutral-500">{m.phone}</div>
-                  {m.is_ghost && (
-                    <CopyLinkButton
-                      path={`/gastos/${roomId}/unirse?miembro=${m.id}`}
-                      label="Copiar enlace de invitación"
-                    />
-                  )}
-                </div>
-                <span className="text-xs text-neutral-500">
-                  {m.role === "admin" ? "Admin" : "Miembro"}
-                  {m.is_ghost ? " · fantasma" : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <AddMemberForm roomId={roomId} />
-        </div>
-      )}
-
-      {tab === "balances" && (
-        <div className="flex flex-col gap-6">
-          <div>
-            <h2 className="mb-2 font-medium">Balance neto</h2>
-            <ul className="flex flex-col gap-1">
-              {balances.map((b) => (
-                <li
-                  key={b.memberId}
-                  className="flex items-center justify-between text-sm"
-                >
-                  <span>{memberName(b.memberId)}</span>
-                  <span
-                    className={
-                      b.amount > 0
-                        ? "text-green-600"
-                        : b.amount < 0
-                          ? "text-red-600"
-                          : "text-neutral-500"
-                    }
-                  >
-                    {b.amount > 0 ? "+" : ""}
-                    {b.amount.toFixed(2)} €
-                  </span>
-                </li>
-              ))}
-            </ul>
+    <>
+      <div style={{ backgroundColor: GASTOS_COLOR }} className="px-6 pb-8 pt-6 text-white">
+        <div className="mx-auto max-w-md">
+          <div className="mb-4 flex items-center justify-between">
+            <Link
+              href="/gastos"
+              className="text-sm text-white/90 underline underline-offset-2 hover:text-white"
+            >
+              ← Salas
+            </Link>
+            <ShareButton
+              light
+              path={`/gastos/${roomId}/unirse`}
+              title={`Únete a "${room.name}"`}
+              text={`Te invito a la sala de gastos "${room.name}" en Herramientas Glez.`}
+            />
           </div>
 
-          <div>
-            <h2 className="mb-2 font-medium">Deudas simplificadas</h2>
+          <h1 className="mb-6 text-2xl font-semibold">{room.name}</h1>
+
+          <div className="mx-auto flex h-44 w-44 flex-col items-center justify-center rounded-full bg-black/25 text-center">
+            {isSettled ? (
+              <>
+                <span className="text-4xl">✓</span>
+                <span className="mt-1 text-sm text-white/80">Sin deudas</span>
+              </>
+            ) : (
+              <>
+                <span className="text-3xl font-semibold">
+                  {myBalance > 0 ? "+" : ""}
+                  {myBalance.toFixed(2)} €
+                </span>
+                <span className="mt-1 text-sm text-white/80">
+                  {myBalance > 0 ? "te deben" : "debes"}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <main className="mx-auto max-w-md p-6">
+        <div className="mb-6 flex gap-2 text-sm">
+          <TabLink roomId={roomId} tab="resumen" active={tab === "resumen"}>
+            Resumen
+          </TabLink>
+          <TabLink roomId={roomId} tab="gastos" active={tab === "gastos"}>
+            Gastos
+          </TabLink>
+          <TabLink roomId={roomId} tab="miembros" active={tab === "miembros"}>
+            Miembros
+          </TabLink>
+        </div>
+
+        {tab === "resumen" && (
+          <div className="flex flex-col gap-6">
+            <div>
+              <h2 className="mb-2 font-medium">Deudas pendientes</h2>
+              <ul className="flex flex-col gap-2">
+                {simplified.map((t, i) => (
+                  <SettlementRow
+                    key={i}
+                    roomId={roomId}
+                    from={t.from}
+                    to={t.to}
+                    amount={t.amount}
+                    fromName={memberName(t.from)}
+                    toName={memberName(t.to)}
+                  />
+                ))}
+              </ul>
+              {simplified.length === 0 && (
+                <p className="text-sm text-neutral-500">Todo saldado. 🎉</p>
+              )}
+            </div>
+
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="font-medium">Últimos gastos</h2>
+                {expenses.length > 5 && (
+                  <Link
+                    href={`/gastos/${roomId}?tab=gastos`}
+                    className="text-sm text-neutral-500 underline underline-offset-2"
+                  >
+                    Ver todos
+                  </Link>
+                )}
+              </div>
+              <ul className="flex flex-col gap-2">
+                {expenses.slice(0, 5).map((expense) => (
+                  <ExpenseRow
+                    key={expense.id}
+                    expense={expense}
+                    paidByName={memberName(expense.paid_by)}
+                  />
+                ))}
+              </ul>
+              {expenses.length === 0 && (
+                <p className="text-sm text-neutral-500">Aún no hay gastos.</p>
+              )}
+            </div>
+
+            <details>
+              <summary className="cursor-pointer text-sm text-neutral-500">
+                Ver balance de cada miembro
+              </summary>
+              <ul className="mt-2 flex flex-col gap-1 text-sm">
+                {balances.map((b) => (
+                  <li
+                    key={b.memberId}
+                    className="flex items-center justify-between"
+                  >
+                    <span>{memberName(b.memberId)}</span>
+                    <span
+                      className={
+                        b.amount > 0
+                          ? "text-green-600"
+                          : b.amount < 0
+                            ? "text-red-600"
+                            : "text-neutral-500"
+                      }
+                    >
+                      {b.amount > 0 ? "+" : ""}
+                      {b.amount.toFixed(2)} €
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+
+            <details>
+              <summary className="cursor-pointer text-sm text-neutral-500">
+                Ver deuda detallada (gasto a gasto)
+              </summary>
+              <ul className="mt-2 flex flex-col gap-1 text-sm">
+                {detailed.map((t, i) => (
+                  <li key={i} className="flex items-center justify-between">
+                    <span>
+                      {memberName(t.from)} → {memberName(t.to)}
+                    </span>
+                    <span>{t.amount.toFixed(2)} €</span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </div>
+        )}
+
+        {tab === "gastos" && (
+          <div className="flex flex-col gap-4">
+            <AddExpenseForm roomId={roomId} members={members} />
             <ul className="flex flex-col gap-2">
-              {simplified.map((t, i) => (
-                <SettlementRow
-                  key={i}
-                  roomId={roomId}
-                  from={t.from}
-                  to={t.to}
-                  amount={t.amount}
-                  fromName={memberName(t.from)}
-                  toName={memberName(t.to)}
+              {expenses.map((expense) => (
+                <ExpenseRow
+                  key={expense.id}
+                  expense={expense}
+                  paidByName={memberName(expense.paid_by)}
+                  onDelete={deleteExpense.bind(null, roomId, expense.id)}
                 />
               ))}
             </ul>
-            {simplified.length === 0 && (
-              <p className="text-sm text-neutral-500">Todo saldado. 🎉</p>
+            {expenses.length === 0 && (
+              <p className="text-sm text-neutral-500">Aún no hay gastos.</p>
             )}
           </div>
+        )}
 
-          <details>
-            <summary className="cursor-pointer text-sm text-neutral-500">
-              Ver deuda detallada (gasto a gasto)
-            </summary>
-            <ul className="mt-2 flex flex-col gap-1 text-sm">
-              {detailed.map((t, i) => (
-                <li key={i} className="flex items-center justify-between">
-                  <span>
-                    {memberName(t.from)} → {memberName(t.to)}
+        {tab === "miembros" && (
+          <div className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-2">
+              {members.map((m) => (
+                <li
+                  key={m.id}
+                  className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+                >
+                  <div>
+                    <div>{m.display_name}</div>
+                    <div className="text-xs text-neutral-500">{m.phone}</div>
+                    {m.is_ghost && (
+                      <CopyLinkButton
+                        path={`/gastos/${roomId}/unirse?miembro=${m.id}`}
+                        label="Copiar enlace de invitación"
+                      />
+                    )}
+                  </div>
+                  <span className="text-xs text-neutral-500">
+                    {m.role === "admin" ? "Admin" : "Miembro"}
+                    {m.is_ghost ? " · fantasma" : ""}
                   </span>
-                  <span>{t.amount.toFixed(2)} €</span>
                 </li>
               ))}
             </ul>
-          </details>
-        </div>
-      )}
-    </main>
+            <AddMemberForm roomId={roomId} />
+          </div>
+        )}
+      </main>
+    </>
   );
 }
 
@@ -286,6 +341,37 @@ function TabLink({
     >
       {children}
     </Link>
+  );
+}
+
+function ExpenseRow({
+  expense,
+  paidByName,
+  onDelete,
+}: {
+  expense: Expense;
+  paidByName: string;
+  onDelete?: (formData: FormData) => void | Promise<void>;
+}) {
+  return (
+    <li className="rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+      <div className="flex items-center justify-between">
+        <span className="font-medium">{expense.description}</span>
+        <span>{expense.amount.toFixed(2)} €</span>
+      </div>
+      <div className="flex items-center justify-between text-xs text-neutral-500">
+        <span>
+          {paidByName} · {expense.expense_date} · {expense.category}
+        </span>
+        {onDelete && (
+          <form action={onDelete}>
+            <button type="submit" className="hover:text-red-600">
+              ✕
+            </button>
+          </form>
+        )}
+      </div>
+    </li>
   );
 }
 
