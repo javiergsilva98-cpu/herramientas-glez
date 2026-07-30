@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ShareButton } from "@/components/share-button";
 import { PhoneForm } from "./phone-form";
 import { RoomForm } from "./room-form";
+import { deleteRoom } from "./actions";
 
 export default async function GastosPage() {
   const supabase = await createClient();
@@ -16,16 +17,19 @@ export default async function GastosPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("phone")
+    .select("phone, can_create_rooms")
     .eq("id", user.id)
     .single();
 
   const { data: memberRows } = await supabase
     .from("room_members")
-    .select("room_id")
+    .select("room_id, role")
     .eq("user_id", user.id);
 
-  const roomIds = (memberRows ?? []).map((row) => row.room_id);
+  const roleByRoomId = new Map(
+    (memberRows ?? []).map((row) => [row.room_id, row.role]),
+  );
+  const roomIds = [...roleByRoomId.keys()];
 
   const { data: roomsData } =
     roomIds.length > 0
@@ -52,27 +56,48 @@ export default async function GastosPage() {
         <div className="flex flex-col gap-6">
           <ul className="flex flex-col gap-2">
             {rooms.map((room) => (
-              <li key={room.id}>
+              <li
+                key={room.id}
+                className="flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+              >
                 <Link
                   href={`/gastos/${room.id}`}
-                  className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600"
+                  className="flex flex-1 items-center justify-between hover:underline"
                 >
                   <span>{room.name}</span>
                   <span className="text-xs text-neutral-500">
                     {room.room_type}
                   </span>
                 </Link>
+                {roleByRoomId.get(room.id) === "admin" && (
+                  <form action={deleteRoom.bind(null, room.id)}>
+                    <button
+                      type="submit"
+                      aria-label="Eliminar sala"
+                      className="text-neutral-400 hover:text-red-600"
+                    >
+                      ✕
+                    </button>
+                  </form>
+                )}
               </li>
             ))}
           </ul>
 
           {rooms.length === 0 && (
             <p className="text-sm text-neutral-500">
-              Todavía no tienes ninguna sala. Crea la primera abajo.
+              Todavía no tienes ninguna sala.
             </p>
           )}
 
-          <RoomForm />
+          {profile.can_create_rooms ? (
+            <RoomForm />
+          ) : (
+            <p className="text-sm text-neutral-500">
+              Solo el administrador puede crear salas nuevas. Pide que te
+              invite con un enlace a una sala existente.
+            </p>
+          )}
         </div>
       )}
     </main>
