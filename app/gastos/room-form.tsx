@@ -1,5 +1,6 @@
 "use client";
 
+import { useActionState } from "react";
 import { createRoom } from "./actions";
 
 const ROOM_TYPES = [
@@ -9,10 +10,14 @@ const ROOM_TYPES = [
   { value: "evento", label: "Evento" },
 ];
 
+const initialState = { error: null as string | null };
+
 export function RoomForm() {
+  const [state, formAction, pending] = useActionState(createRoom, initialState);
+
   return (
     <form
-      action={createRoom}
+      action={formAction}
       className="flex flex-col gap-3 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
     >
       <label className="text-sm">
@@ -50,10 +55,12 @@ export function RoomForm() {
       </div>
       <button
         type="submit"
-        className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
+        disabled={pending}
+        className="rounded-md bg-neutral-900 px-3 py-2 text-white disabled:opacity-50 dark:bg-white dark:text-neutral-900"
       >
-        Crear sala
+        {pending ? "Creando..." : "Crear sala"}
       </button>
+      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
     </form>
   );
 }
