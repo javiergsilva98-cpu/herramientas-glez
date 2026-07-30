@@ -1,4 +1,5 @@
--- Lista de la compra
+-- 001_lista_compra.sql
+-- Lista de la compra: tabla shopping_items + políticas RLS
 -- Ejecuta este script en el SQL editor de tu proyecto Supabase.
 
 create table if not exists public.shopping_items (

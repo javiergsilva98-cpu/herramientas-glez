@@ -19,9 +19,10 @@ iPhone como si fuera una app independiente.
 
 ### 1. Supabase
 
-1. En tu proyecto de Supabase, ve a **SQL Editor** y ejecuta el contenido de
-   [`supabase/schema.sql`](./supabase/schema.sql) (crea la tabla de la lista
-   de la compra y sus políticas de seguridad).
+1. En tu proyecto de Supabase, ve a **SQL Editor** y ejecuta las migraciones
+   de la carpeta [`migraciones/`](./migraciones) **en orden** (001, 002...).
+   El estado de cuáles se han ejecutado ya se lleva en
+   [`migraciones/ESTADO.md`](./migraciones/ESTADO.md).
 2. Ve a **Authentication → Providers → Email** y asegúrate de que el login
    por enlace mágico (magic link / OTP) está activado.
 3. Ve a **Authentication → Settings** y desactiva **"Allow new users to
@@ -75,5 +76,6 @@ que quieras usar (mantén los tamaños 180×180, 192×192 y 512×512).
    existente como plantilla) y `app/<slug>/page.tsx`.
 3. Genera su manifest en `public/manifests/<slug>.webmanifest` y sus
    iconos en `public/icons/<slug>/`.
-4. Si necesita datos propios, añade su tabla y políticas RLS en un nuevo
-   archivo `supabase/<slug>.sql` y ejecútalo en el SQL Editor de Supabase.
+4. Si necesita datos propios, añade una nueva migración numerada en
+   `migraciones/` (ver [convención de migraciones](./migraciones/ESTADO.md))
+   y ejecútala en el SQL Editor de Supabase cuando toque.
