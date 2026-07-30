@@ -3,9 +3,11 @@
 import { useState } from "react";
 import type { ShoppingItem, StoreType } from "@/lib/types/shopping";
 import {
+  CATEGORIES,
   QUANTITY_UNITS,
   STORE_CHAINS,
   STORE_TYPES,
+  categoryLabel,
   storeChainLabel,
   storeTypeLabel,
 } from "./constants";
@@ -26,6 +28,16 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
   const checked = items.filter((item) => item.is_checked);
   const selectedIds = Object.keys(selected).filter((id) => selected[id]);
   const editingItem = items.find((item) => item.id === editingId) ?? null;
+
+  const groups: { label: string; items: ShoppingItem[] }[] = [];
+  for (const cat of CATEGORIES) {
+    const catItems = pending.filter((item) => item.category === cat.value);
+    if (catItems.length > 0) groups.push({ label: cat.label, items: catItems });
+  }
+  const uncategorized = pending.filter((item) => !item.category);
+  if (uncategorized.length > 0) {
+    groups.push({ label: "Sin categoría", items: uncategorized });
+  }
 
   function toggleSelected(id: string) {
     setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -70,17 +82,26 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
         />
       )}
 
-      <ul className="flex flex-col gap-2">
-        {pending.map((item) => (
-          <Item
-            key={item.id}
-            item={item}
-            selected={!!selected[item.id]}
-            onToggleSelected={() => toggleSelected(item.id)}
-            onEdit={() => setEditingId(item.id)}
-          />
+      <div className="flex flex-col gap-4">
+        {groups.map((group) => (
+          <div key={group.label}>
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+              {group.label}
+            </h3>
+            <ul className="flex flex-col gap-2">
+              {group.items.map((item) => (
+                <Item
+                  key={item.id}
+                  item={item}
+                  selected={!!selected[item.id]}
+                  onToggleSelected={() => toggleSelected(item.id)}
+                  onEdit={() => setEditingId(item.id)}
+                />
+              ))}
+            </ul>
+          </div>
         ))}
-      </ul>
+      </div>
 
       {pending.length === 0 && (
         <p className="text-sm text-neutral-500">No hay nada pendiente. 🎉</p>
@@ -131,6 +152,7 @@ function Item({
   const remove = deleteItem.bind(null, item.id);
   const store = storeTypeLabel(item.store_type);
   const chain = storeChainLabel(item.store_chain);
+  const category = categoryLabel(item.category);
 
   return (
     <li
@@ -176,9 +198,9 @@ function Item({
             {item.quantity} {item.quantity_unit}
           </span>
         </div>
-        {(store || chain) && (
+        {(store || chain || category) && (
           <div className="text-xs text-neutral-500">
-            {chain ?? store}
+            {[chain ?? store, category].filter(Boolean).join(" · ")}
           </div>
         )}
       </div>
@@ -300,6 +322,22 @@ function SingleEditPanel({
         </label>
       )}
 
+      <label className="text-sm">
+        Categoría (pasillo)
+        <select
+          name="category"
+          defaultValue={item.category ?? ""}
+          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+        >
+          <option value="">Sin especificar</option>
+          {CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
@@ -404,6 +442,25 @@ function BulkEditPanel({
           {QUANTITY_UNITS.map((u) => (
             <option key={u.value} value={u.value}>
               {u.label}
+            </option>
+          ))}
+        </select>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" name="apply_category" className="h-4 w-4" />
+          Cambiar categoría (pasillo)
+        </label>
+        <select
+          name="category"
+          defaultValue=""
+          className="rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+        >
+          <option value="">Sin especificar</option>
+          {CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
             </option>
           ))}
         </select>
