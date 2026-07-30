@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ShareButton } from "@/components/share-button";
-import { ToolHeader } from "@/components/tool-header";
 import { getTool } from "@/lib/tools";
 import type { Vehicle } from "@/lib/types/garaje";
 import { AddVehicleButton } from "./add-vehicle-button";
+import { VehiclePager, type PagerItem } from "./vehicle-pager";
 import { deleteVehicle } from "./actions";
 
 const TOOL_COLOR = getTool("garaje")!.color;
@@ -67,43 +67,41 @@ export default async function GarajePage() {
 
   const today = new Date().toISOString().slice(0, 10);
 
+  const pagerItems: PagerItem[] = vehicles.map((v) => {
+    const nearest = upcoming.filter((u) => u.vehicleId === v.id)[0];
+    return {
+      vehicle: v,
+      alert: nearest ? `${nearest.label} · ${nearest.date}` : null,
+      alertOverdue: nearest ? nearest.date < today : false,
+      deleteAction: deleteVehicle.bind(null, v.id),
+    };
+  });
+
   return (
-    <>
-      <ToolHeader color={TOOL_COLOR}>
+    <div className="gj min-h-dvh">
+      <div className="mx-auto max-w-md px-6 pb-4 pt-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">🔧 Garaje</h1>
+          <h1 className="text-xl font-semibold">🔧 Garaje</h1>
           <ShareButton light path="/garaje" title="Garaje" />
         </div>
-      </ToolHeader>
+      </div>
 
-      <main className="mx-auto max-w-md p-6 pb-24">
+      <main className="mx-auto max-w-md p-6 pb-24 pt-0">
         <div className="mb-6">
-          <h2 className="mb-2 font-medium">Próximos vencimientos</h2>
+          <div className="gj-soft mb-2 text-[11px] uppercase tracking-widest">
+            Próximos avisos
+          </div>
           {upcoming.length === 0 ? (
-            <p className="text-sm text-neutral-500">
-              No hay vencimientos programados.
-            </p>
+            <p className="gj-soft text-sm">No hay vencimientos programados.</p>
           ) : (
-            <ul className="flex flex-col gap-2">
+            <ul className="gj-panel flex flex-col divide-y rounded-xl border text-sm" style={{ borderColor: "var(--gj-hair)" }}>
               {upcoming.map((item, i) => (
-                <li
-                  key={i}
-                  className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800"
-                >
-                  <Link
-                    href={`/garaje/${item.vehicleId}`}
-                    className="hover:underline"
-                  >
-                    <span className="font-medium">{item.vehicleName}</span> ·{" "}
-                    {item.label}
+                <li key={i} className="gj-hair flex items-center justify-between px-4 py-2.5">
+                  <Link href={`/garaje/${item.vehicleId}`} className="hover:underline">
+                    <span className="font-medium">{item.vehicleName}</span>{" "}
+                    <span className="gj-soft">· {item.label}</span>
                   </Link>
-                  <span
-                    className={
-                      item.date < today
-                        ? "font-medium text-red-600"
-                        : "text-neutral-500"
-                    }
-                  >
+                  <span className={`gj-mono text-xs ${item.date < today ? "gj-alert" : "gj-soft"}`}>
                     {item.date}
                   </span>
                 </li>
@@ -112,46 +110,15 @@ export default async function GarajePage() {
           )}
         </div>
 
-        <div className="flex flex-col gap-3">
-          <h2 className="font-medium">Vehículos</h2>
-          <ul className="flex flex-col gap-2">
-            {vehicles.map((v) => (
-              <li
-                key={v.id}
-                className="flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800"
-              >
-                <Link
-                  href={`/garaje/${v.id}`}
-                  className="flex flex-1 items-center justify-between hover:underline"
-                >
-                  <span>
-                    {v.vehicle_type === "moto" ? "🏍️" : "🚗"} {v.name}
-                  </span>
-                  <span className="text-xs text-neutral-500">
-                    {[v.brand, v.model].filter(Boolean).join(" ")}
-                  </span>
-                </Link>
-                <form action={deleteVehicle.bind(null, v.id)}>
-                  <button
-                    type="submit"
-                    aria-label="Eliminar vehículo"
-                    className="text-neutral-400 hover:text-red-600"
-                  >
-                    ✕
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-          {vehicles.length === 0 && (
-            <p className="text-sm text-neutral-500">
-              Todavía no hay vehículos.
-            </p>
-          )}
-        </div>
+        <div className="gj-soft mb-2 text-[11px] uppercase tracking-widest">Vehículos</div>
+        {pagerItems.length > 0 ? (
+          <VehiclePager items={pagerItems} />
+        ) : (
+          <p className="gj-soft text-sm">Todavía no hay vehículos.</p>
+        )}
       </main>
 
       <AddVehicleButton color={TOOL_COLOR} />
-    </>
+    </div>
   );
 }

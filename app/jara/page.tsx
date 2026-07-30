@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ShareButton } from "@/components/share-button";
-import { ToolHeader } from "@/components/tool-header";
-import { getTool } from "@/lib/tools";
 import type { GroomingReminder, HuntingDay, JaraHealthEvent } from "@/lib/types/jara";
 import { healthEventTypeLabel } from "./constants";
 import { HealthForm } from "./health-form";
@@ -13,8 +11,6 @@ import {
   deleteHuntingDay,
   deleteGroomingReminder,
 } from "./actions";
-
-const TOOL_COLOR = getTool("jara")!.color;
 
 type Tab = "salud" | "caza" | "peluqueria";
 
@@ -67,183 +63,192 @@ export default async function JaraPage({
   ].sort((a, b) => a.date.localeCompare(b.date));
 
   return (
-    <>
-      <ToolHeader color={TOOL_COLOR}>
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">🐾 Jara</h1>
-          <ShareButton light path="/jara" title="Jara" />
-        </div>
-      </ToolHeader>
+    <div className="jr flex min-h-dvh">
+      <nav className="jr-ribbon flex w-11 flex-shrink-0 flex-col gap-1 pt-6">
+        <RibbonTab tab="salud" active={tab === "salud"}>
+          Salud
+        </RibbonTab>
+        <RibbonTab tab="caza" active={tab === "caza"}>
+          Caza
+        </RibbonTab>
+        <RibbonTab tab="peluqueria" active={tab === "peluqueria"}>
+          Aseo
+        </RibbonTab>
+      </nav>
 
-      <main className="mx-auto max-w-md p-6">
-        <div className="mb-6">
-          <h2 className="mb-2 font-medium">Próximos recordatorios</h2>
-          {upcoming.length === 0 ? (
-            <p className="text-sm text-neutral-500">
-              No hay recordatorios programados.
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {upcoming.map((item, i) => (
-                <li
-                  key={i}
-                  className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800"
-                >
-                  <span>{item.label}</span>
-                  <span
-                    className={
-                      item.date < today
-                        ? "font-medium text-red-600"
-                        : "text-neutral-500"
-                    }
-                  >
-                    {item.date}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="mb-6 flex gap-2 text-sm">
-          <TabLink tab="salud" active={tab === "salud"}>
-            Salud
-          </TabLink>
-          <TabLink tab="caza" active={tab === "caza"}>
-            Caza
-          </TabLink>
-          <TabLink tab="peluqueria" active={tab === "peluqueria"}>
-            Peluquería
-          </TabLink>
+      <div className="min-w-0 flex-1">
+        <div className="jr-topo px-6 py-5">
+          <svg viewBox="0 0 300 90" preserveAspectRatio="none">
+            <path
+              d="M0,72 C60,36 90,80 150,50 C210,18 250,63 300,40"
+              stroke="var(--jr-accent)"
+              strokeWidth="1.5"
+              fill="none"
+            />
+            <path
+              d="M0,54 C60,18 90,63 150,32 C210,0 250,45 300,22"
+              stroke="var(--jr-accent)"
+              strokeWidth="1.5"
+              fill="none"
+            />
+          </svg>
+          <div className="relative flex items-start justify-between">
+            <div>
+              <h1 className="jr-sans text-xl font-semibold">🐾 Jara</h1>
+              <p className="jr-sans jr-soft text-xs">Braco Bretón</p>
+            </div>
+            <div className="jr-sans">
+              <ShareButton path="/jara" title="Jara" />
+            </div>
+          </div>
         </div>
 
-        {tab === "salud" && (
-          <div className="flex flex-col gap-4">
-            <HealthForm />
-            <ul className="flex flex-col gap-2">
-              {healthEvents.map((e) => (
-                <li
-                  key={e.id}
-                  className="rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">
-                      {healthEventTypeLabel(e.event_type)}
+        <main className="mx-auto max-w-md p-6">
+          <div className="jr-card corner mb-6 rounded px-4 py-3 text-sm">
+            {upcoming.length === 0 ? (
+              <span className="jr-soft">No hay recordatorios programados.</span>
+            ) : (
+              <ul className="flex flex-col gap-1.5">
+                {upcoming.map((item, i) => (
+                  <li key={i} className="flex items-center justify-between gap-3">
+                    <span>
+                      <span className="jr-paw mr-1.5">🐾</span>
+                      {item.label}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-neutral-500">
-                        {e.event_date}
+                    <span
+                      className={item.date < today ? "font-semibold" : "jr-soft"}
+                      style={item.date < today ? { color: "var(--jr-accent)" } : undefined}
+                    >
+                      {item.date}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {tab === "salud" && (
+            <div className="flex flex-col gap-4">
+              <HealthForm />
+              <ul className="flex flex-col">
+                {healthEvents.map((e) => (
+                  <li key={e.id} className="jr-entry py-3 text-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <span>
+                        <span className="jr-paw mr-1.5">🐾</span>
+                        <span className="font-medium">
+                          {healthEventTypeLabel(e.event_type)}
+                        </span>
                       </span>
-                      <form action={deleteHealthEvent.bind(null, e.id)}>
-                        <button type="submit" className="hover:text-red-600">
+                      <div className="jr-sans flex items-center gap-2">
+                        <span className="jr-soft text-xs">{e.event_date}</span>
+                        <form action={deleteHealthEvent.bind(null, e.id)}>
+                          <button type="submit" className="hover:opacity-70">
+                            ✕
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                    {e.next_due_date && (
+                      <div className="mt-1 pl-6 text-xs">
+                        <span
+                          className={e.next_due_date < today ? "font-semibold" : "jr-soft"}
+                          style={
+                            e.next_due_date < today
+                              ? { color: "var(--jr-accent)" }
+                              : undefined
+                          }
+                        >
+                          Próxima: {e.next_due_date}
+                        </span>
+                      </div>
+                    )}
+                    {e.notes && <p className="jr-soft mt-1 pl-6 text-xs">{e.notes}</p>}
+                  </li>
+                ))}
+              </ul>
+              {healthEvents.length === 0 && (
+                <p className="jr-soft text-sm">Aún no hay eventos de salud.</p>
+              )}
+            </div>
+          )}
+
+          {tab === "caza" && (
+            <div className="flex flex-col gap-4">
+              <HuntingForm />
+              <ul className="flex flex-col">
+                {huntingDays.map((d) => (
+                  <li key={d.id} className="jr-entry py-3 text-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <span>
+                        <span className="jr-paw moss mr-1.5">🐾</span>
+                        <span className="font-medium">{d.event_date}</span>
+                      </span>
+                      <form action={deleteHuntingDay.bind(null, d.id)}>
+                        <button type="submit" className="hover:opacity-70">
                           ✕
                         </button>
                       </form>
                     </div>
-                  </div>
-                  {e.next_due_date && (
-                    <div
-                      className={
-                        e.next_due_date < today
-                          ? "text-xs font-medium text-red-600"
-                          : "text-xs text-neutral-500"
-                      }
-                    >
-                      Próxima: {e.next_due_date}
-                    </div>
-                  )}
-                  {e.notes && (
-                    <p className="mt-1 text-xs text-neutral-500">{e.notes}</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-            {healthEvents.length === 0 && (
-              <p className="text-sm text-neutral-500">
-                Aún no hay eventos de salud.
-              </p>
-            )}
-          </div>
-        )}
+                    {d.notes && <p className="jr-soft mt-1 pl-6 text-xs">{d.notes}</p>}
+                  </li>
+                ))}
+              </ul>
+              {huntingDays.length === 0 && (
+                <p className="jr-soft text-sm">Aún no hay jornadas de caza.</p>
+              )}
+            </div>
+          )}
 
-        {tab === "caza" && (
-          <div className="flex flex-col gap-4">
-            <HuntingForm />
-            <ul className="flex flex-col gap-2">
-              {huntingDays.map((d) => (
-                <li
-                  key={d.id}
-                  className="rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{d.event_date}</span>
-                    <form action={deleteHuntingDay.bind(null, d.id)}>
-                      <button type="submit" className="hover:text-red-600">
-                        ✕
-                      </button>
-                    </form>
-                  </div>
-                  {d.notes && (
-                    <p className="mt-1 text-xs text-neutral-500">{d.notes}</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-            {huntingDays.length === 0 && (
-              <p className="text-sm text-neutral-500">
-                Aún no hay jornadas de caza.
-              </p>
-            )}
-          </div>
-        )}
-
-        {tab === "peluqueria" && (
-          <div className="flex flex-col gap-4">
-            <GroomingForm />
-            <ul className="flex flex-col gap-2">
-              {groomingReminders.map((g) => (
-                <li
-                  key={g.id}
-                  className="rounded-lg border border-neutral-200 px-3 py-2 dark:border-neutral-800"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{g.event_date}</span>
-                    <form action={deleteGroomingReminder.bind(null, g.id)}>
-                      <button type="submit" className="hover:text-red-600">
-                        ✕
-                      </button>
-                    </form>
-                  </div>
-                  {g.next_due_date && (
-                    <div
-                      className={
-                        g.next_due_date < today
-                          ? "text-xs font-medium text-red-600"
-                          : "text-xs text-neutral-500"
-                      }
-                    >
-                      Próxima: {g.next_due_date}
+          {tab === "peluqueria" && (
+            <div className="flex flex-col gap-4">
+              <GroomingForm />
+              <ul className="flex flex-col">
+                {groomingReminders.map((g) => (
+                  <li key={g.id} className="jr-entry py-3 text-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <span>
+                        <span className="jr-paw mr-1.5">🐾</span>
+                        <span className="font-medium">{g.event_date}</span>
+                      </span>
+                      <form action={deleteGroomingReminder.bind(null, g.id)}>
+                        <button type="submit" className="hover:opacity-70">
+                          ✕
+                        </button>
+                      </form>
                     </div>
-                  )}
-                  {g.notes && (
-                    <p className="mt-1 text-xs text-neutral-500">{g.notes}</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-            {groomingReminders.length === 0 && (
-              <p className="text-sm text-neutral-500">
-                Aún no hay recordatorios de peluquería.
-              </p>
-            )}
-          </div>
-        )}
-      </main>
-    </>
+                    {g.next_due_date && (
+                      <div className="mt-1 pl-6 text-xs">
+                        <span
+                          className={g.next_due_date < today ? "font-semibold" : "jr-soft"}
+                          style={
+                            g.next_due_date < today
+                              ? { color: "var(--jr-accent)" }
+                              : undefined
+                          }
+                        >
+                          Próxima: {g.next_due_date}
+                        </span>
+                      </div>
+                    )}
+                    {g.notes && <p className="jr-soft mt-1 pl-6 text-xs">{g.notes}</p>}
+                  </li>
+                ))}
+              </ul>
+              {groomingReminders.length === 0 && (
+                <p className="jr-soft text-sm">
+                  Aún no hay recordatorios de peluquería.
+                </p>
+              )}
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
   );
 }
 
-function TabLink({
+function RibbonTab({
   tab,
   active,
   children,
@@ -255,11 +260,7 @@ function TabLink({
   return (
     <Link
       href={`/jara?tab=${tab}`}
-      className={`rounded-full border px-3 py-1 ${
-        active
-          ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
-          : "border-neutral-300 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
-      }`}
+      className={`jr-tab jr-sans py-3 text-[10px] ${active ? "active" : ""}`}
     >
       {children}
     </Link>

@@ -17,7 +17,12 @@ export function AddDocumentButton({
   return (
     <>
       <FabButton color={color} label="Añadir documento" onClick={() => setOpen(true)} />
-      <Modal open={open} onClose={() => setOpen(false)} title="Añadir documento">
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Añadir documento"
+        className="gj-modal"
+      >
         <DocumentForm vehicleId={vehicleId} onSubmit={() => setOpen(false)} />
       </Modal>
     </>

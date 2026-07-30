@@ -21,7 +21,12 @@ export function AddMaintenanceButton({
         label="Añadir mantenimiento"
         onClick={() => setOpen(true)}
       />
-      <Modal open={open} onClose={() => setOpen(false)} title="Añadir mantenimiento">
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Añadir mantenimiento"
+        className="gj-modal"
+      >
         <MaintenanceForm vehicleId={vehicleId} onSubmit={() => setOpen(false)} />
       </Modal>
     </>

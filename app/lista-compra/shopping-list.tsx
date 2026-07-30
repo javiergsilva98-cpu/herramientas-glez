@@ -46,7 +46,7 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
   return (
     <div className="flex flex-col gap-4">
       {selectedIds.length > 0 && (
-        <div className="flex items-center justify-between rounded-lg bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-900">
+        <div className="lc-input flex items-center justify-between rounded-lg px-3 py-2 text-sm">
           <span>{selectedIds.length} seleccionados</span>
           <div className="flex gap-3">
             <button
@@ -57,7 +57,7 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
             </button>
             <button
               onClick={() => setSelected({})}
-              className="text-neutral-500 underline underline-offset-2"
+              className="lc-soft underline underline-offset-2"
             >
               Cancelar
             </button>
@@ -85,10 +85,8 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
       <div className="flex flex-col gap-4">
         {groups.map((group) => (
           <div key={group.label}>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-              {group.label}
-            </h3>
-            <ul className="flex flex-col gap-2">
+            <div className="lc-cat mb-2">{group.label}</div>
+            <ul className="flex flex-col">
               {group.items.map((item) => (
                 <Item
                   key={item.id}
@@ -104,15 +102,15 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
       </div>
 
       {pending.length === 0 && (
-        <p className="text-sm text-neutral-500">No hay nada pendiente. 🎉</p>
+        <p className="lc-soft lc-mono text-sm">No hay nada pendiente. 🎉</p>
       )}
 
       {checked.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-sm text-neutral-500">
+          <summary className="lc-soft lc-mono cursor-pointer text-sm">
             Comprados ({checked.length})
           </summary>
-          <ul className="mt-2 flex flex-col gap-2">
+          <ul className="mt-2 flex flex-col">
             {checked.map((item) => (
               <Item
                 key={item.id}
@@ -126,7 +124,8 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
           <form action={clearChecked} className="mt-3">
             <button
               type="submit"
-              className="text-sm text-red-600 underline underline-offset-2"
+              className="text-sm underline underline-offset-2"
+              style={{ color: "var(--lc-urgent)" }}
             >
               Vaciar comprados
             </button>
@@ -156,10 +155,8 @@ function Item({
 
   return (
     <li
-      className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${
-        item.is_urgent
-          ? "border-red-300 bg-red-50 dark:border-red-900 dark:bg-red-950/40"
-          : "border-neutral-200 dark:border-neutral-800"
+      className={`lc-row flex items-center gap-2 py-2 text-sm ${
+        item.is_urgent ? "urgent" : ""
       }`}
     >
       <input
@@ -173,40 +170,41 @@ function Item({
         <button
           type="submit"
           aria-label="Marcar como comprado"
-          className={`h-5 w-5 shrink-0 rounded-full border ${
-            item.is_checked
-              ? "border-green-600 bg-green-600"
-              : "border-neutral-400"
-          }`}
+          className="h-4 w-4 shrink-0 rounded-sm border-2"
+          style={{
+            borderColor: item.is_checked ? "var(--lc-accent)" : "var(--lc-hair)",
+            backgroundColor: item.is_checked ? "var(--lc-accent)" : "transparent",
+          }}
         />
       </form>
-      <div className="flex-1">
+      <div className="lc-mono flex-1">
         <div
           className={
             item.is_checked
-              ? "text-neutral-400 line-through"
+              ? "lc-soft line-through"
               : item.is_urgent
-                ? "font-semibold text-red-700 dark:text-red-400"
+                ? "font-semibold"
                 : ""
           }
+          style={item.is_urgent && !item.is_checked ? { color: "var(--lc-urgent)" } : undefined}
         >
           {item.is_urgent && !item.is_checked && (
-            <span className="mr-1 text-xs font-bold uppercase">Urgente ·</span>
+            <span className="lc-stamp mr-2">Urgente</span>
           )}
           {item.name}
-          <span className="ml-2 text-sm font-normal text-neutral-500">
-            {item.quantity} {item.quantity_unit}
-          </span>
         </div>
         {(store || chain || category) && (
-          <div className="text-xs text-neutral-500">
+          <div className="lc-soft text-xs">
             {[chain ?? store, category].filter(Boolean).join(" · ")}
           </div>
         )}
       </div>
+      <span className="lc-mono lc-soft text-xs">
+        {item.quantity} {item.quantity_unit}
+      </span>
       <button
         onClick={onEdit}
-        className="text-sm text-neutral-500 underline underline-offset-2 hover:text-neutral-800 dark:hover:text-neutral-200"
+        className="text-xs underline underline-offset-2 hover:opacity-70"
       >
         Editar
       </button>
@@ -214,7 +212,8 @@ function Item({
         <button
           type="submit"
           aria-label="Eliminar"
-          className="text-neutral-400 hover:text-red-600"
+          className="lc-soft hover:opacity-70"
+          style={{ color: "var(--lc-urgent)" }}
         >
           ✕
         </button>
@@ -238,11 +237,11 @@ function SingleEditPanel({
     <form
       action={updateItem}
       onSubmit={onClose}
-      className="flex flex-col gap-3 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
+      className="lc-card flex flex-col gap-3 rounded-lg p-4 text-sm"
     >
       <div className="flex items-center justify-between">
         <h2 className="font-medium">Editar producto</h2>
-        <button type="button" onClick={onClose} className="text-neutral-500">
+        <button type="button" onClick={onClose} className="lc-soft">
           ✕
         </button>
       </div>
@@ -255,7 +254,7 @@ function SingleEditPanel({
           name="name"
           defaultValue={item.name}
           required
-          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="lc-input mt-1 w-full rounded-md px-3 py-2"
         />
       </label>
 
@@ -268,7 +267,7 @@ function SingleEditPanel({
             min="0"
             name="quantity"
             defaultValue={item.quantity}
-            className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="lc-input mt-1 w-full rounded-md px-3 py-2"
           />
         </label>
         <label className="flex-1 text-sm">
@@ -276,7 +275,7 @@ function SingleEditPanel({
           <select
             name="quantity_unit"
             defaultValue={item.quantity_unit}
-            className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="lc-input mt-1 w-full rounded-md px-3 py-2"
           >
             {QUANTITY_UNITS.map((u) => (
               <option key={u.value} value={u.value}>
@@ -293,7 +292,7 @@ function SingleEditPanel({
           name="store_type"
           value={storeType}
           onChange={(e) => setStoreType(e.target.value as StoreType | "")}
-          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="lc-input mt-1 w-full rounded-md px-3 py-2"
         >
           <option value="">Sin especificar</option>
           {STORE_TYPES.map((t) => (
@@ -310,7 +309,7 @@ function SingleEditPanel({
           <select
             name="store_chain"
             defaultValue={item.store_chain ?? ""}
-            className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="lc-input mt-1 w-full rounded-md px-3 py-2"
           >
             <option value="">Cualquiera</option>
             {STORE_CHAINS.map((c) => (
@@ -327,7 +326,7 @@ function SingleEditPanel({
         <select
           name="category"
           defaultValue={item.category ?? ""}
-          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="lc-input mt-1 w-full rounded-md px-3 py-2"
         >
           <option value="">Sin especificar</option>
           {CATEGORIES.map((c) => (
@@ -350,7 +349,8 @@ function SingleEditPanel({
 
       <button
         type="submit"
-        className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
+        className="rounded-md px-3 py-2 font-medium text-white"
+        style={{ backgroundColor: "var(--lc-accent)" }}
       >
         Guardar
       </button>
@@ -371,11 +371,11 @@ function BulkEditPanel({
     <form
       action={bulkUpdateItems}
       onSubmit={onClose}
-      className="flex flex-col gap-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
+      className="lc-card flex flex-col gap-4 rounded-lg p-4 text-sm"
     >
       <div className="flex items-center justify-between">
         <h2 className="font-medium">Editar {ids.length} productos</h2>
-        <button type="button" onClick={onClose} className="text-neutral-500">
+        <button type="button" onClick={onClose} className="lc-soft">
           ✕
         </button>
       </div>
@@ -384,7 +384,7 @@ function BulkEditPanel({
         <input key={id} type="hidden" name="ids" value={id} />
       ))}
 
-      <fieldset className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+      <fieldset className="lc-hair flex flex-col gap-2 rounded-md border p-3">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input type="checkbox" name="apply_store" className="h-4 w-4" />
           Cambiar tienda
@@ -393,7 +393,7 @@ function BulkEditPanel({
           name="store_type"
           value={storeType}
           onChange={(e) => setStoreType(e.target.value as StoreType | "")}
-          className="rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="lc-input rounded-md px-3 py-2"
         >
           <option value="">Sin especificar</option>
           {STORE_TYPES.map((t) => (
@@ -406,7 +406,7 @@ function BulkEditPanel({
           <select
             name="store_chain"
             defaultValue=""
-            className="rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="lc-input rounded-md px-3 py-2"
           >
             <option value="">Cualquiera</option>
             {STORE_CHAINS.map((c) => (
@@ -418,7 +418,7 @@ function BulkEditPanel({
         )}
       </fieldset>
 
-      <fieldset className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+      <fieldset className="lc-hair flex flex-col gap-2 rounded-md border p-3">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input type="checkbox" name="apply_urgent" className="h-4 w-4" />
           Cambiar urgencia
@@ -429,7 +429,7 @@ function BulkEditPanel({
         </label>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+      <fieldset className="lc-hair flex flex-col gap-2 rounded-md border p-3">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input type="checkbox" name="apply_unit" className="h-4 w-4" />
           Cambiar unidad
@@ -437,7 +437,7 @@ function BulkEditPanel({
         <select
           name="quantity_unit"
           defaultValue="unidades"
-          className="rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="lc-input rounded-md px-3 py-2"
         >
           {QUANTITY_UNITS.map((u) => (
             <option key={u.value} value={u.value}>
@@ -447,7 +447,7 @@ function BulkEditPanel({
         </select>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+      <fieldset className="lc-hair flex flex-col gap-2 rounded-md border p-3">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input type="checkbox" name="apply_category" className="h-4 w-4" />
           Cambiar categoría (pasillo)
@@ -455,7 +455,7 @@ function BulkEditPanel({
         <select
           name="category"
           defaultValue=""
-          className="rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="lc-input rounded-md px-3 py-2"
         >
           <option value="">Sin especificar</option>
           {CATEGORIES.map((c) => (
@@ -468,7 +468,8 @@ function BulkEditPanel({
 
       <button
         type="submit"
-        className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
+        className="rounded-md px-3 py-2 font-medium text-white"
+        style={{ backgroundColor: "var(--lc-accent)" }}
       >
         Aplicar a {ids.length} productos
       </button>

@@ -5,11 +5,13 @@ export function Modal({
   onClose,
   title,
   children,
+  className = "",
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   if (!open) return null;
 
@@ -19,7 +21,7 @@ export function Modal({
       onClick={onClose}
     >
       <div
-        className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 dark:bg-neutral-900"
+        className={`max-h-[85vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 dark:bg-neutral-900 ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between">
