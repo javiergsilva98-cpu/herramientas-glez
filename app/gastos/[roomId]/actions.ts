@@ -98,6 +98,21 @@ export async function joinRoom(roomId: string) {
   redirect(`/gastos/${roomId}`);
 }
 
+export async function claimMember(roomId: string, memberId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("claim_member", {
+    p_member_id: memberId,
+  });
+
+  if (error || !data || data.length === 0) {
+    redirect(
+      `/gastos/${roomId}/unirse?miembro=${memberId}&error=${encodeURIComponent(error?.message ?? "No se pudo completar la invitación.")}`,
+    );
+  }
+
+  redirect(`/gastos/${data[0].room_id}`);
+}
+
 export async function deleteExpense(roomId: string, expenseId: string) {
   const supabase = await createClient();
   await supabase.from("expenses").delete().eq("id", expenseId);

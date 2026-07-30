@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { ShareButton } from "@/components/share-button";
+import { CopyLinkButton } from "@/components/copy-link-button";
 import type { Expense, ExpenseSplit, RoomMember, Settlement } from "@/lib/types/gastos";
 import { computeBalances, detailedDebts, simplifyDebts } from "@/lib/gastos/balances";
 import { AddMemberForm } from "./add-member-form";
@@ -9,6 +11,36 @@ import { AddExpenseForm } from "./add-expense-form";
 import { deleteExpense, recordSettlement } from "./actions";
 
 type Tab = "gastos" | "miembros" | "balances";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ roomId: string }>;
+}): Promise<Metadata> {
+  const { roomId } = await params;
+  const supabase = await createClient();
+  const { data: room } = await supabase
+    .from("rooms")
+    .select("name")
+    .eq("id", roomId)
+    .single();
+
+  const name = room?.name ?? "Divisor de gastos";
+
+  return {
+    title: name,
+    manifest: `/gastos/${roomId}/manifest.webmanifest`,
+    appleWebApp: {
+      capable: true,
+      title: name,
+      statusBarStyle: "default",
+    },
+    icons: {
+      apple: "/icons/gastos/icon-180.png",
+      icon: "/icons/gastos/icon-192.png",
+    },
+  };
+}
 
 export default async function RoomPage({
   params,
@@ -145,6 +177,12 @@ export default async function RoomPage({
                 <div>
                   <div>{m.display_name}</div>
                   <div className="text-xs text-neutral-500">{m.phone}</div>
+                  {m.is_ghost && (
+                    <CopyLinkButton
+                      path={`/gastos/${roomId}/unirse?miembro=${m.id}`}
+                      label="Copiar enlace de invitación"
+                    />
+                  )}
                 </div>
                 <span className="text-xs text-neutral-500">
                   {m.role === "admin" ? "Admin" : "Miembro"}
