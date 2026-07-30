@@ -66,7 +66,7 @@ export const tools: Tool[] = [
     shortName: "Garaje",
     description: "Mantenimiento y documentación de la moto y el coche.",
     emoji: "🔧",
-    color: "#475569",
+    color: "#1c3971",
     href: "/garaje",
     ready: true,
   },
