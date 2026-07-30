@@ -58,7 +58,7 @@ export const tools: Tool[] = [
     emoji: "💶",
     color: "#7c3aed",
     href: "/gastos",
-    ready: false,
+    ready: true,
   },
 ];
 

@@ -4,6 +4,7 @@ import type { ShoppingItem, StoreChain, StoreType } from "@/lib/types/shopping";
 import { STORE_CHAINS, STORE_TYPES } from "./constants";
 import { addItem } from "./actions";
 import { ShoppingList } from "./shopping-list";
+import { ShareButton } from "@/components/share-button";
 
 const VALID_STORE_TYPES = STORE_TYPES.map((t) => t.value);
 const VALID_STORE_CHAINS = STORE_CHAINS.map((c) => c.value);
@@ -47,6 +48,7 @@ export default async function ListaCompraPage({
         <Link href="/" className="text-sm text-neutral-500 hover:underline">
           ← Inicio
         </Link>
+        <ShareButton path="/lista-compra" title="Lista de la compra" />
       </div>
 
       <h1 className="mb-4 text-2xl font-semibold">🛒 Lista de la compra</h1>
