@@ -1,21 +1,27 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import type { ShoppingItem, StoreType } from "@/lib/types/shopping";
-import { STORE_TYPES } from "./constants";
+import type { ShoppingItem, StoreChain, StoreType } from "@/lib/types/shopping";
+import { STORE_CHAINS, STORE_TYPES } from "./constants";
 import { addItem } from "./actions";
 import { ShoppingList } from "./shopping-list";
 
 const VALID_STORE_TYPES = STORE_TYPES.map((t) => t.value);
+const VALID_STORE_CHAINS = STORE_CHAINS.map((c) => c.value);
 
 export default async function ListaCompraPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tienda?: string }>;
+  searchParams: Promise<{ tienda?: string; cadena?: string }>;
 }) {
-  const { tienda } = await searchParams;
+  const { tienda, cadena } = await searchParams;
   const storeFilter = VALID_STORE_TYPES.includes(tienda as StoreType)
     ? (tienda as StoreType)
     : null;
+  const chainFilter =
+    storeFilter === "supermercado" &&
+    VALID_STORE_CHAINS.includes(cadena as StoreChain)
+      ? (cadena as StoreChain)
+      : null;
 
   const supabase = await createClient();
   let query = supabase
@@ -25,6 +31,11 @@ export default async function ListaCompraPage({
 
   if (storeFilter) {
     query = query.eq("store_type", storeFilter);
+  }
+  if (chainFilter) {
+    // Los productos genéricos de supermercado (sin cadena) valen para
+    // cualquier super, así que se muestran también.
+    query = query.or(`store_chain.eq.${chainFilter},store_chain.is.null`);
   }
 
   const { data, error } = await query;
@@ -40,7 +51,7 @@ export default async function ListaCompraPage({
 
       <h1 className="mb-4 text-2xl font-semibold">🛒 Lista de la compra</h1>
 
-      <div className="mb-6 flex flex-wrap gap-2 text-sm">
+      <div className="mb-2 flex flex-wrap gap-2 text-sm">
         <FilterTab label="Todos" active={!storeFilter} href="/lista-compra" />
         {STORE_TYPES.map((t) => (
           <FilterTab
@@ -51,6 +62,24 @@ export default async function ListaCompraPage({
           />
         ))}
       </div>
+
+      {storeFilter === "supermercado" && (
+        <div className="mb-6 flex flex-wrap gap-2 text-sm">
+          <FilterTab
+            label="Todos los supermercados"
+            active={!chainFilter}
+            href="/lista-compra?tienda=supermercado"
+          />
+          {STORE_CHAINS.map((c) => (
+            <FilterTab
+              key={c.value}
+              label={c.label}
+              active={chainFilter === c.value}
+              href={`/lista-compra?tienda=supermercado&cadena=${c.value}`}
+            />
+          ))}
+        </div>
+      )}
 
       {error && (
         <p className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
