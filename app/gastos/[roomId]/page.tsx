@@ -7,6 +7,7 @@ import { ToolHeader } from "@/components/tool-header";
 import { getTool } from "@/lib/tools";
 import type { Expense, ExpenseSplit, RoomMember, Settlement } from "@/lib/types/gastos";
 import { computeBalances, detailedDebts, simplifyDebts } from "@/lib/gastos/balances";
+import { expenseCategoryLabel } from "../constants";
 import { AddMemberForm } from "./add-member-form";
 import { AddExpenseButton } from "./add-expense-button";
 import { EditExpenseButton } from "./edit-expense-button";
@@ -394,7 +395,7 @@ function FeedItemRow({
         <div className="flex items-center justify-between text-xs text-neutral-500">
           <span>
             {memberName(expense.paid_by)} · {expense.expense_date} ·{" "}
-            {expense.category}
+            {expenseCategoryLabel(expense.category)}
           </span>
           <div className="flex items-center gap-2">
             <EditExpenseButton

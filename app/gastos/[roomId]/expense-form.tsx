@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Expense, ExpenseSplit, RoomMember, SplitType } from "@/lib/types/gastos";
+import { EXPENSE_CATEGORIES } from "../constants";
 
 const SPLIT_TYPES: { value: SplitType; label: string }[] = [
   { value: "equal", label: "Igual" },
@@ -84,11 +85,17 @@ export function ExpenseForm({
 
       <label className="text-sm">
         Categoría
-        <input
+        <select
           name="category"
           defaultValue={expense?.category ?? "otros"}
           className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
-        />
+        >
+          {EXPENSE_CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label className="text-sm">
