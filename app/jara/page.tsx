@@ -95,7 +95,7 @@ export default async function JaraPage({
           <div className="relative flex items-start justify-between">
             <div>
               <h1 className="jr-sans text-xl font-semibold">🐾 Jara</h1>
-              <p className="jr-sans jr-soft text-xs">Braco Bretón</p>
+              <p className="jr-sans jr-soft text-xs">Bretón Español</p>
             </div>
             <div className="jr-sans">
               <ShareButton path="/jara" title="Jara" />
@@ -149,6 +149,13 @@ export default async function JaraPage({
                         </form>
                       </div>
                     </div>
+                    {(e.place || e.price != null) && (
+                      <div className="jr-soft mt-1 pl-6 text-xs">
+                        {[e.place, e.price != null ? `${e.price.toFixed(2)} €` : null]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
+                    )}
                     {e.next_due_date && (
                       <div className="mt-1 pl-6 text-xs">
                         <span

@@ -8,6 +8,8 @@ export async function addHealthEvent(formData: FormData) {
   const eventType = String(formData.get("event_type") ?? "") as HealthEventType;
   const eventDate = String(formData.get("event_date") ?? "").trim();
   const nextDueDate = String(formData.get("next_due_date") ?? "").trim();
+  const priceRaw = String(formData.get("price") ?? "").trim();
+  const place = String(formData.get("place") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!eventType) return;
@@ -21,6 +23,8 @@ export async function addHealthEvent(formData: FormData) {
     event_type: eventType,
     event_date: eventDate || new Date().toISOString().slice(0, 10),
     next_due_date: nextDueDate || null,
+    price: priceRaw ? Number(priceRaw) : null,
+    place: place || null,
     notes: notes || null,
     created_by: user?.id ?? null,
   });
