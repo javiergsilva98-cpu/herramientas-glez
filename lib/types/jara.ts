@@ -9,6 +9,8 @@ export type JaraHealthEvent = {
   event_type: HealthEventType;
   event_date: string;
   next_due_date: string | null;
+  price: number | null;
+  place: string | null;
   notes: string | null;
   created_by: string | null;
   created_at: string;

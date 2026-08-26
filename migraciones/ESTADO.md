@@ -18,3 +18,4 @@ pregúntame y te digo cuál es el último marcado como ejecutado.
 | 009 | [`009_garaje.sql`](./009_garaje.sql) | Garaje: tablas `vehicles`, `maintenance_records`, `vehicle_documents` + RLS + alta de moto y coche | ✅ Ejecutado |
 | 010 | [`010_jara.sql`](./010_jara.sql) | Jara: tablas `jara_health_events`, `hunting_days`, `grooming_reminders` + RLS | ✅ Ejecutado |
 | 011 | [`011_garaje_documentos_archivo.sql`](./011_garaje_documentos_archivo.sql) | Garaje: columnas `file_url`/`file_name` en `vehicle_documents` + bucket de Storage `vehicle-documents` + políticas | ✅ Ejecutado |
+| 012 | [`012_jara_precio_lugar.sql`](./012_jara_precio_lugar.sql) | Jara: columnas `price`/`place` en `jara_health_events` | ⏳ Pendiente |

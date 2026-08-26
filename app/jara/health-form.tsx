@@ -46,6 +46,27 @@ export function HealthForm() {
         </label>
       </div>
 
+      <div className="flex gap-2">
+        <label className="flex-1 text-sm">
+          Lugar (opcional)
+          <input
+            name="place"
+            placeholder="Ej. Urgencias veterinarias"
+            className="jr-input mt-1 w-full rounded-md px-3 py-2"
+          />
+        </label>
+        <label className="flex-1 text-sm">
+          Precio € (opcional)
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            name="price"
+            className="jr-input mt-1 w-full rounded-md px-3 py-2"
+          />
+        </label>
+      </div>
+
       <label className="text-sm">
         Notas
         <textarea
