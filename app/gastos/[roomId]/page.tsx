@@ -11,6 +11,7 @@ import { expenseCategoryLabel } from "../constants";
 import { AddMemberForm } from "./add-member-form";
 import { AddExpenseButton } from "./add-expense-button";
 import { EditExpenseButton } from "./edit-expense-button";
+import { RecordPaymentButton } from "./record-payment-button";
 import { deleteExpense, deleteSettlement, recordSettlement } from "./actions";
 
 type Tab = "resumen" | "gastos" | "miembros";
@@ -204,6 +205,9 @@ export default async function RoomPage({
               {simplified.length === 0 && (
                 <p className="text-sm text-neutral-500">Todo saldado. 🎉</p>
               )}
+              <div className="mt-2">
+                <RecordPaymentButton roomId={roomId} members={members} />
+              </div>
             </div>
 
             <div>

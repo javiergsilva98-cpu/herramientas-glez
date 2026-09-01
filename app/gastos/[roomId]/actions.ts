@@ -181,6 +181,7 @@ export async function recordSettlement(formData: FormData) {
   const amount = Number(formData.get("amount"));
   const method = String(formData.get("method") ?? "bizum");
   if (!roomId || !fromMemberId || !toMemberId || !amount || amount <= 0) return;
+  if (fromMemberId === toMemberId) return;
 
   const supabase = await createClient();
   const {
