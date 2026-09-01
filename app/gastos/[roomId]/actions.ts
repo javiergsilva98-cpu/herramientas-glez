@@ -180,6 +180,7 @@ export async function recordSettlement(formData: FormData) {
   const toMemberId = String(formData.get("to_member_id") ?? "");
   const amount = Number(formData.get("amount"));
   const method = String(formData.get("method") ?? "bizum");
+  const note = String(formData.get("note") ?? "").trim();
   if (!roomId || !fromMemberId || !toMemberId || !amount || amount <= 0) return;
   if (fromMemberId === toMemberId) return;
 
@@ -194,6 +195,7 @@ export async function recordSettlement(formData: FormData) {
     to_member_id: toMemberId,
     amount,
     method,
+    note: note || null,
     created_by: user?.id ?? null,
   });
 

@@ -430,7 +430,10 @@ function FeedItemRow({
         <span>{settlement.amount.toFixed(2)} €</span>
       </div>
       <div className="flex items-center justify-between text-xs text-neutral-500">
-        <span>Pago saldado · {settlement.settled_at.slice(0, 10)}</span>
+        <span>
+          {settlement.note ? settlement.note : "Pago saldado"} ·{" "}
+          {settlement.settled_at.slice(0, 10)}
+        </span>
         <form action={deleteSettlement.bind(null, roomId, settlement.id)}>
           <button type="submit" className="hover:text-red-600">
             ✕
