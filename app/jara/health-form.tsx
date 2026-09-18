@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitButton } from "@/components/submit-button";
 import { addHealthEvent } from "./actions";
 import { HEALTH_EVENT_TYPES } from "./constants";
 
@@ -76,9 +77,9 @@ export function HealthForm() {
         />
       </label>
 
-      <button type="submit" className="jr-button rounded-md px-3 py-2">
+      <SubmitButton pendingText="Añadiendo…" className="jr-button rounded-md px-3 py-2">
         Añadir
-      </button>
+      </SubmitButton>
     </form>
   );
 }

@@ -2,8 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { ShoppingItem, StoreChain, StoreType } from "@/lib/types/shopping";
 import { STORE_CHAINS, STORE_TYPES } from "./constants";
-import { addItem } from "./actions";
 import { ShoppingList } from "./shopping-list";
+import { AddItemForm } from "./add-item-form";
 import { ShareButton } from "@/components/share-button";
 
 const VALID_STORE_TYPES = STORE_TYPES.map((t) => t.value);
@@ -98,21 +98,7 @@ export default async function ListaCompraPage({
           </p>
         )}
 
-        <form action={addItem} className="lc-mono mb-6 flex gap-2 text-sm">
-          <input
-            name="name"
-            required
-            placeholder="Añadir producto…"
-            className="lc-input lc-mono flex-1 rounded-md px-3 py-2"
-          />
-          <button
-            type="submit"
-            className="rounded-md px-3 py-2 font-semibold text-white"
-            style={{ backgroundColor: "var(--lc-accent)" }}
-          >
-            +
-          </button>
-        </form>
+        <AddItemForm />
 
         <ShoppingList items={items} />
       </main>

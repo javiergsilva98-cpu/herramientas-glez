@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SubmitButton } from "@/components/submit-button";
 import type { Expense, ExpenseSplit, RoomMember, SplitType } from "@/lib/types/gastos";
 import { EXPENSE_CATEGORIES } from "../constants";
 
@@ -169,12 +170,12 @@ export function ExpenseForm({
         ))}
       </div>
 
-      <button
-        type="submit"
+      <SubmitButton
+        pendingText="Guardando…"
         className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
       >
         {submitLabel}
-      </button>
+      </SubmitButton>
     </form>
   );
 }

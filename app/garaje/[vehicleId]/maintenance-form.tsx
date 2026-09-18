@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SubmitButton } from "@/components/submit-button";
 import { addMaintenance } from "./actions";
 import { MAINTENANCE_TYPE_SUGGESTIONS } from "../constants";
 import type { PerformedBy } from "@/lib/types/garaje";
@@ -117,12 +118,12 @@ export function MaintenanceForm({
         />
       </label>
 
-      <button
-        type="submit"
+      <SubmitButton
+        pendingText="Añadiendo…"
         className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
       >
         Añadir mantenimiento
-      </button>
+      </SubmitButton>
     </form>
   );
 }

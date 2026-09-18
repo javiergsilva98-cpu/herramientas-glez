@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitButton } from "@/components/submit-button";
 import { addVehicle } from "./actions";
 
 export function VehicleForm({ onSubmit }: { onSubmit?: () => void }) {
@@ -61,12 +62,12 @@ export function VehicleForm({ onSubmit }: { onSubmit?: () => void }) {
         </label>
       </div>
 
-      <button
-        type="submit"
+      <SubmitButton
+        pendingText="Añadiendo…"
         className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
       >
         Añadir vehículo
-      </button>
+      </SubmitButton>
     </form>
   );
 }

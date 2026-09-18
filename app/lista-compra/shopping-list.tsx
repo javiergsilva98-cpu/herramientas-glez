@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useOptimistic, useState, useTransition } from "react";
+import { SubmitButton } from "@/components/submit-button";
 import type { ShoppingItem, StoreType } from "@/lib/types/shopping";
 import {
   CATEGORIES,
@@ -19,7 +20,15 @@ import {
   updateItem,
 } from "./actions";
 
-export function ShoppingList({ items }: { items: ShoppingItem[] }) {
+export function ShoppingList({ items: serverItems }: { items: ShoppingItem[] }) {
+  const [items, setOptimisticChecked] = useOptimistic(
+    serverItems,
+    (state, payload: { id: string; checked: boolean }) =>
+      state.map((it) =>
+        it.id === payload.id ? { ...it, is_checked: payload.checked } : it,
+      ),
+  );
+  const [, startTransition] = useTransition();
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
   const [bulkEditing, setBulkEditing] = useState(false);
@@ -41,6 +50,15 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
 
   function toggleSelected(id: string) {
     setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  function handleToggleChecked(id: string, checked: boolean) {
+    // Cambiamos el estado al instante (sin esperar al servidor) para que
+    // marcar como comprado se note inmediato incluso con la red lenta.
+    startTransition(async () => {
+      setOptimisticChecked({ id, checked });
+      await toggleItem(id, checked);
+    });
   }
 
   return (
@@ -93,6 +111,7 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
                   item={item}
                   selected={!!selected[item.id]}
                   onToggleSelected={() => toggleSelected(item.id)}
+                  onToggleChecked={(checked) => handleToggleChecked(item.id, checked)}
                   onEdit={() => setEditingId(item.id)}
                 />
               ))}
@@ -117,18 +136,19 @@ export function ShoppingList({ items }: { items: ShoppingItem[] }) {
                 item={item}
                 selected={!!selected[item.id]}
                 onToggleSelected={() => toggleSelected(item.id)}
+                onToggleChecked={(c) => handleToggleChecked(item.id, c)}
                 onEdit={() => setEditingId(item.id)}
               />
             ))}
           </ul>
           <form action={clearChecked} className="mt-3">
-            <button
-              type="submit"
+            <SubmitButton
+              pendingText="Vaciando…"
               className="text-sm underline underline-offset-2"
               style={{ color: "var(--lc-urgent)" }}
             >
               Vaciar comprados
-            </button>
+            </SubmitButton>
           </form>
         </details>
       )}
@@ -140,14 +160,15 @@ function Item({
   item,
   selected,
   onToggleSelected,
+  onToggleChecked,
   onEdit,
 }: {
   item: ShoppingItem;
   selected: boolean;
   onToggleSelected: () => void;
+  onToggleChecked: (checked: boolean) => void;
   onEdit: () => void;
 }) {
-  const toggle = toggleItem.bind(null, item.id, !item.is_checked);
   const remove = deleteItem.bind(null, item.id);
   const store = storeTypeLabel(item.store_type);
   const chain = storeChainLabel(item.store_chain);
@@ -166,17 +187,16 @@ function Item({
         className="h-4 w-4 shrink-0"
         aria-label="Seleccionar"
       />
-      <form action={toggle}>
-        <button
-          type="submit"
-          aria-label="Marcar como comprado"
-          className="h-4 w-4 shrink-0 rounded-sm border-2"
-          style={{
-            borderColor: item.is_checked ? "var(--lc-accent)" : "var(--lc-hair)",
-            backgroundColor: item.is_checked ? "var(--lc-accent)" : "transparent",
-          }}
-        />
-      </form>
+      <button
+        type="button"
+        onClick={() => onToggleChecked(!item.is_checked)}
+        aria-label="Marcar como comprado"
+        className="h-4 w-4 shrink-0 rounded-sm border-2"
+        style={{
+          borderColor: item.is_checked ? "var(--lc-accent)" : "var(--lc-hair)",
+          backgroundColor: item.is_checked ? "var(--lc-accent)" : "transparent",
+        }}
+      />
       <div className="lc-mono flex-1">
         <div
           className={
@@ -209,14 +229,13 @@ function Item({
         Editar
       </button>
       <form action={remove}>
-        <button
-          type="submit"
+        <SubmitButton
           aria-label="Eliminar"
           className="lc-soft hover:opacity-70"
           style={{ color: "var(--lc-urgent)" }}
         >
           ✕
-        </button>
+        </SubmitButton>
       </form>
     </li>
   );
@@ -347,13 +366,13 @@ function SingleEditPanel({
         Urgente
       </label>
 
-      <button
-        type="submit"
+      <SubmitButton
+        pendingText="Guardando…"
         className="rounded-md px-3 py-2 font-medium text-white"
         style={{ backgroundColor: "var(--lc-accent)" }}
       >
         Guardar
-      </button>
+      </SubmitButton>
     </form>
   );
 }
@@ -466,13 +485,13 @@ function BulkEditPanel({
         </select>
       </fieldset>
 
-      <button
-        type="submit"
+      <SubmitButton
+        pendingText="Aplicando…"
         className="rounded-md px-3 py-2 font-medium text-white"
         style={{ backgroundColor: "var(--lc-accent)" }}
       >
         Aplicar a {ids.length} productos
-      </button>
+      </SubmitButton>
     </form>
   );
 }

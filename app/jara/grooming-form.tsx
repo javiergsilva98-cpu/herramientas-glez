@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitButton } from "@/components/submit-button";
 import { addGroomingReminder } from "./actions";
 
 export function GroomingForm() {
@@ -39,9 +40,9 @@ export function GroomingForm() {
         />
       </label>
 
-      <button type="submit" className="jr-button rounded-md px-3 py-2">
+      <SubmitButton pendingText="Añadiendo…" className="jr-button rounded-md px-3 py-2">
         Añadir
-      </button>
+      </SubmitButton>
     </form>
   );
 }

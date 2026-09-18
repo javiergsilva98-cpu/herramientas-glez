@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { CopyLinkButton } from "@/components/copy-link-button";
+import { SubmitButton } from "@/components/submit-button";
 import { ToolHeader } from "@/components/tool-header";
 import { getTool } from "@/lib/tools";
 import type { Expense, ExpenseSplit, RoomMember, Settlement } from "@/lib/types/gastos";
@@ -409,9 +410,7 @@ function FeedItemRow({
               splits={splitsByExpense.get(expense.id) ?? []}
             />
             <form action={deleteExpense.bind(null, roomId, expense.id)}>
-              <button type="submit" className="hover:text-red-600">
-                ✕
-              </button>
+              <SubmitButton className="hover:text-red-600">✕</SubmitButton>
             </form>
           </div>
         </div>
@@ -435,9 +434,7 @@ function FeedItemRow({
           {settlement.settled_at.slice(0, 10)}
         </span>
         <form action={deleteSettlement.bind(null, roomId, settlement.id)}>
-          <button type="submit" className="hover:text-red-600">
-            ✕
-          </button>
+          <SubmitButton className="hover:text-red-600">✕</SubmitButton>
         </form>
       </div>
     </li>
@@ -470,12 +467,12 @@ function SettlementRow({
         <input type="hidden" name="to_member_id" value={to} />
         <input type="hidden" name="amount" value={amount} />
         <input type="hidden" name="method" value="efectivo" />
-        <button
-          type="submit"
+        <SubmitButton
+          pendingText="Saldando…"
           className="text-xs text-green-700 underline underline-offset-2 dark:text-green-400"
         >
           Marcar saldado
-        </button>
+        </SubmitButton>
       </form>
     </li>
   );
