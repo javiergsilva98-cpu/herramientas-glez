@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitButton } from "@/components/submit-button";
 import { addHuntingDay } from "./actions";
 
 export function HuntingForm() {
@@ -29,9 +30,9 @@ export function HuntingForm() {
         />
       </label>
 
-      <button type="submit" className="jr-button rounded-md px-3 py-2">
+      <SubmitButton pendingText="Añadiendo…" className="jr-button rounded-md px-3 py-2">
         Añadir
-      </button>
+      </SubmitButton>
     </form>
   );
 }

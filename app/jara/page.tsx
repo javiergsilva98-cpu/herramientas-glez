@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ShareButton } from "@/components/share-button";
+import { SubmitButton } from "@/components/submit-button";
 import type { GroomingReminder, HuntingDay, JaraHealthEvent } from "@/lib/types/jara";
 import { healthEventTypeLabel } from "./constants";
 import { HealthForm } from "./health-form";
@@ -143,9 +144,7 @@ export default async function JaraPage({
                       <div className="jr-sans flex items-center gap-2">
                         <span className="jr-soft text-xs">{e.event_date}</span>
                         <form action={deleteHealthEvent.bind(null, e.id)}>
-                          <button type="submit" className="hover:opacity-70">
-                            ✕
-                          </button>
+                          <SubmitButton className="hover:opacity-70">✕</SubmitButton>
                         </form>
                       </div>
                     </div>
@@ -192,9 +191,7 @@ export default async function JaraPage({
                         <span className="font-medium">{d.event_date}</span>
                       </span>
                       <form action={deleteHuntingDay.bind(null, d.id)}>
-                        <button type="submit" className="hover:opacity-70">
-                          ✕
-                        </button>
+                        <SubmitButton className="hover:opacity-70">✕</SubmitButton>
                       </form>
                     </div>
                     {d.notes && <p className="jr-soft mt-1 pl-6 text-xs">{d.notes}</p>}
@@ -219,9 +216,7 @@ export default async function JaraPage({
                         <span className="font-medium">{g.event_date}</span>
                       </span>
                       <form action={deleteGroomingReminder.bind(null, g.id)}>
-                        <button type="submit" className="hover:opacity-70">
-                          ✕
-                        </button>
+                        <SubmitButton className="hover:opacity-70">✕</SubmitButton>
                       </form>
                     </div>
                     {g.next_due_date && (

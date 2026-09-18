@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ShareButton } from "@/components/share-button";
+import { SubmitButton } from "@/components/submit-button";
 import { getTool } from "@/lib/tools";
 import type { MaintenanceRecord, Vehicle, VehicleDocument } from "@/lib/types/garaje";
 import { documentTypeLabel } from "../constants";
@@ -212,9 +213,7 @@ export default async function VehiclePage({
                         <span className="gj-mono gj-soft">{m.price.toFixed(2)}€</span>
                       )}
                       <form action={deleteMaintenance.bind(null, vehicleId, m.id)}>
-                        <button type="submit" className="gj-soft hover:opacity-70">
-                          ✕
-                        </button>
+                        <SubmitButton className="gj-soft hover:opacity-70">✕</SubmitButton>
                       </form>
                     </div>
                   </div>
@@ -267,9 +266,7 @@ export default async function VehiclePage({
                         </span>
                       )}
                       <form action={deleteDocument.bind(null, vehicleId, d.id)}>
-                        <button type="submit" className="gj-soft hover:opacity-70">
-                          ✕
-                        </button>
+                        <SubmitButton className="gj-soft hover:opacity-70">✕</SubmitButton>
                       </form>
                     </div>
                   </div>

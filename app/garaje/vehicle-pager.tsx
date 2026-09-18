@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { SubmitButton } from "@/components/submit-button";
 import { VehicleSilhouette } from "./vehicle-silhouette";
 import type { Vehicle } from "@/lib/types/garaje";
 
@@ -41,13 +42,12 @@ export function VehiclePager({ items }: { items: PagerItem[] }) {
               >
                 <div className="absolute right-4 top-4 z-10">
                   <form action={deleteAction}>
-                    <button
-                      type="submit"
+                    <SubmitButton
                       aria-label="Eliminar vehículo"
                       className="gj-soft hover:opacity-70"
                     >
                       ✕
-                    </button>
+                    </SubmitButton>
                   </form>
                 </div>
                 <div className="pointer-events-none absolute left-2 top-0 opacity-90">

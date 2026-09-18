@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitButton } from "@/components/submit-button";
 import { recordSettlement } from "./actions";
 import type { RoomMember } from "@/lib/types/gastos";
 
@@ -97,12 +98,12 @@ export function PaymentForm({
         />
       </label>
 
-      <button
-        type="submit"
+      <SubmitButton
+        pendingText="Registrando…"
         className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
       >
         Registrar pago
-      </button>
+      </SubmitButton>
     </form>
   );
 }

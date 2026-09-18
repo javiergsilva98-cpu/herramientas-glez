@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitButton } from "@/components/submit-button";
 import { addMember } from "./actions";
 
 export function AddMemberForm({ roomId }: { roomId: string }) {
@@ -31,12 +32,12 @@ export function AddMemberForm({ roomId }: { roomId: string }) {
         No hace falta que tenga cuenta: se añade como miembro &quot;fantasma&quot;
         y podrá reclamarlo si se registra con ese mismo teléfono.
       </p>
-      <button
-        type="submit"
+      <SubmitButton
+        pendingText="Añadiendo…"
         className="rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
       >
         Añadir
-      </button>
+      </SubmitButton>
     </form>
   );
 }

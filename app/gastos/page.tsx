@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ShareButton } from "@/components/share-button";
+import { SubmitButton } from "@/components/submit-button";
 import { PhoneForm } from "./phone-form";
 import { RoomForm } from "./room-form";
 import { deleteRoom } from "./actions";
@@ -77,13 +78,12 @@ export default async function GastosPage() {
                 </Link>
                 {roleByRoomId.get(room.id) === "admin" && (
                   <form action={deleteRoom.bind(null, room.id)}>
-                    <button
-                      type="submit"
+                    <SubmitButton
                       aria-label="Eliminar sala"
                       className="text-neutral-400 hover:text-red-600"
                     >
                       ✕
-                    </button>
+                    </SubmitButton>
                   </form>
                 )}
               </li>

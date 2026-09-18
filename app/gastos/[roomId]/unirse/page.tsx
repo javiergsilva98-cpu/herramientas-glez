@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/submit-button";
 import { PhoneForm } from "../../phone-form";
 import { claimMember, joinRoom } from "../actions";
 
@@ -37,12 +38,12 @@ export default async function JoinRoomPage({
           💶 Te han invitado a una sala de gastos
         </h1>
         <form action={claimMember.bind(null, roomId, miembro)}>
-          <button
-            type="submit"
+          <SubmitButton
+            pendingText="Uniéndome…"
             className="w-full rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
           >
             Unirme
-          </button>
+          </SubmitButton>
         </form>
         {error && (
           <p className="text-sm text-red-600">
@@ -75,12 +76,12 @@ export default async function JoinRoomPage({
         </div>
       ) : (
         <form action={joinRoom.bind(null, roomId)}>
-          <button
-            type="submit"
+          <SubmitButton
+            pendingText="Uniéndome…"
             className="w-full rounded-md bg-neutral-900 px-3 py-2 text-white dark:bg-white dark:text-neutral-900"
           >
             Unirme a la sala
-          </button>
+          </SubmitButton>
         </form>
       )}
 
